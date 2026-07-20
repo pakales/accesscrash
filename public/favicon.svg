@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="AccessCrash">
+  <rect width="64" height="64" rx="17" fill="#07120f"/>
+  <path d="M17 46V31c0-8.3 6.7-15 15-15h3" fill="none" stroke="#79f2bf" stroke-width="7" stroke-linecap="round"/>
+  <path d="M30 16h10c4.4 0 8 3.6 8 8v1" fill="none" stroke="#c4ffe6" stroke-width="7" stroke-linecap="round"/>
+  <path d="M48 34v6c0 4.4-3.6 8-8 8H26" fill="none" stroke="#79f2bf" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="17" cy="47" r="5" fill="#c4ffe6"/>
+  <circle cx="48" cy="25" r="5" fill="#ff8a78"/>
+</svg>

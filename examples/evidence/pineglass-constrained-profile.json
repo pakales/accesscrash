@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "1.0",
+  "id": "mobile-after-hours",
+  "label": "Mobile-only after hours",
+  "description": "A synthetic profile with email and mobile upload, but no SMS, printer, or scanner, and evening-only availability.",
+  "capabilities": [
+    {
+      "capabilityId": "email",
+      "state": "available"
+    },
+    {
+      "capabilityId": "sms",
+      "state": "unavailable"
+    },
+    {
+      "capabilityId": "printer",
+      "state": "unavailable"
+    },
+    {
+      "capabilityId": "scanner",
+      "state": "unavailable"
+    },
+    {
+      "capabilityId": "mobile-upload",
+      "state": "available"
+    },
+    {
+      "capabilityId": "document-file",
+      "state": "available"
+    },
+    {
+      "capabilityId": "live-call",
+      "state": "available"
+    }
+  ],
+  "availableWindows": [
+    {
+      "startsAt": "2026-08-03T18:00:00.000Z",
+      "endsAt": "2026-08-03T22:00:00.000Z",
+      "label": "Monday after work"
+    },
+    {
+      "startsAt": "2026-08-04T18:00:00.000Z",
+      "endsAt": "2026-08-04T22:00:00.000Z",
+      "label": "Tuesday after work"
+    },
+    {
+      "startsAt": "2026-08-05T18:00:00.000Z",
+      "endsAt": "2026-08-05T22:00:00.000Z",
+      "label": "Wednesday after work"
+    }
+  ]
+}

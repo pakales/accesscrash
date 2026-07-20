@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "1.0",
+  "id": "standard-access",
+  "label": "Standard access",
+  "description": "A synthetic profile with every published channel and broad daytime availability.",
+  "capabilities": [
+    {
+      "capabilityId": "email",
+      "state": "available"
+    },
+    {
+      "capabilityId": "sms",
+      "state": "available"
+    },
+    {
+      "capabilityId": "printer",
+      "state": "available"
+    },
+    {
+      "capabilityId": "scanner",
+      "state": "available"
+    },
+    {
+      "capabilityId": "mobile-upload",
+      "state": "available"
+    },
+    {
+      "capabilityId": "document-file",
+      "state": "available"
+    },
+    {
+      "capabilityId": "live-call",
+      "state": "available"
+    }
+  ],
+  "availableWindows": [
+    {
+      "startsAt": "2026-08-03T08:00:00.000Z",
+      "endsAt": "2026-08-14T22:00:00.000Z",
+      "label": "Access Grant completion period"
+    }
+  ]
+}

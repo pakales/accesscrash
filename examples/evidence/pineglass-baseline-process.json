@@ -1,0 +1,322 @@
+{
+  "schemaVersion": "1.0",
+  "processId": "pineglass-access-grant",
+  "version": "1.0.0",
+  "title": "Pineglass Institute · Access Grant",
+  "description": "The original Access Grant onboarding path requires SMS, a printer and scanner, and a daytime advisor appointment.",
+  "journey": {
+    "startsAt": "2026-08-03T08:00:00.000Z",
+    "deadlineAt": "2026-08-14T22:00:00.000Z",
+    "outcomeStepId": "access-grant-ready"
+  },
+  "sources": [
+    {
+      "id": "pineglass-access-grant-guide",
+      "title": "Pineglass Institute · Access Grant onboarding guide",
+      "kind": "guide",
+      "uri": null
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "email",
+      "label": "email access",
+      "description": "Can receive and open messages sent to an email account."
+    },
+    {
+      "id": "sms",
+      "label": "SMS access",
+      "description": "Can receive a one-time code at a mobile phone number."
+    },
+    {
+      "id": "printer",
+      "label": "a printer",
+      "description": "Can print a supplied document."
+    },
+    {
+      "id": "scanner",
+      "label": "a scanner",
+      "description": "Can digitize a signed paper document."
+    },
+    {
+      "id": "mobile-upload",
+      "label": "mobile document upload",
+      "description": "Can photograph and upload a document from a phone."
+    },
+    {
+      "id": "document-file",
+      "label": "an income document file",
+      "description": "Has the requested income evidence in a supported format."
+    },
+    {
+      "id": "live-call",
+      "label": "live call access",
+      "description": "Can join a scheduled remote verification call."
+    }
+  ],
+  "steps": [
+    {
+      "id": "accept-offer",
+      "label": "Accept the grant invitation",
+      "description": "Open the invitation and confirm intent to continue.",
+      "kind": "action",
+      "confirmation": {
+        "status": "confirmed",
+        "confirmedBy": "Pineglass Institute service-design reviewer",
+        "confirmedAt": "2026-07-20T12:00:00.000Z"
+      },
+      "citations": [
+        {
+          "sourceId": "pineglass-access-grant-guide",
+          "locator": "Page 1 · Accepting the invitation",
+          "quote": "Accept the Access Grant invitation before starting onboarding."
+        }
+      ],
+      "prerequisiteRoutes": [],
+      "capabilityRoutes": [
+        {
+          "id": "email-invitation",
+          "label": "Use the emailed invitation",
+          "allOf": [
+            "email"
+          ]
+        }
+      ],
+      "durationMinutes": 5,
+      "availabilityWindows": []
+    },
+    {
+      "id": "create-student-account",
+      "label": "Create the student account",
+      "description": "Create the portal account used by the remaining steps.",
+      "kind": "account",
+      "confirmation": {
+        "status": "confirmed",
+        "confirmedBy": "Pineglass Institute service-design reviewer",
+        "confirmedAt": "2026-07-20T12:00:00.000Z"
+      },
+      "citations": [
+        {
+          "sourceId": "pineglass-access-grant-guide",
+          "locator": "Page 1 · Portal account",
+          "quote": "Use the invitation email to create a Pineglass student portal account."
+        }
+      ],
+      "prerequisiteRoutes": [
+        {
+          "id": "after-acceptance",
+          "label": "After accepting the invitation",
+          "allOf": [
+            "accept-offer"
+          ]
+        }
+      ],
+      "capabilityRoutes": [
+        {
+          "id": "email-account",
+          "label": "Create by email",
+          "allOf": [
+            "email"
+          ]
+        }
+      ],
+      "durationMinutes": 10,
+      "availabilityWindows": []
+    },
+    {
+      "id": "verify-identity",
+      "label": "Verify identity",
+      "description": "Complete the portal identity challenge.",
+      "kind": "verification",
+      "confirmation": {
+        "status": "confirmed",
+        "confirmedBy": "Pineglass Institute service-design reviewer",
+        "confirmedAt": "2026-07-20T12:00:00.000Z"
+      },
+      "citations": [
+        {
+          "sourceId": "pineglass-access-grant-guide",
+          "locator": "Page 2 · Identity verification",
+          "quote": "Enter the one-time code sent to the mobile number on file."
+        }
+      ],
+      "prerequisiteRoutes": [
+        {
+          "id": "account-required",
+          "label": "Use the created student account",
+          "allOf": [
+            "create-student-account"
+          ]
+        }
+      ],
+      "capabilityRoutes": [
+        {
+          "id": "sms-code",
+          "label": "Receive an SMS code",
+          "allOf": [
+            "sms"
+          ]
+        }
+      ],
+      "durationMinutes": 5,
+      "availabilityWindows": []
+    },
+    {
+      "id": "prepare-income-proof",
+      "label": "Prepare income evidence",
+      "description": "Locate the income document requested by the grant guide.",
+      "kind": "document",
+      "confirmation": {
+        "status": "confirmed",
+        "confirmedBy": "Pineglass Institute service-design reviewer",
+        "confirmedAt": "2026-07-20T12:00:00.000Z"
+      },
+      "citations": [
+        {
+          "sourceId": "pineglass-access-grant-guide",
+          "locator": "Page 2 · Required evidence",
+          "quote": "Prepare one supported income document before submitting the packet."
+        }
+      ],
+      "prerequisiteRoutes": [
+        {
+          "id": "invitation-required",
+          "label": "Invitation accepted",
+          "allOf": [
+            "accept-offer"
+          ]
+        }
+      ],
+      "capabilityRoutes": [
+        {
+          "id": "existing-document",
+          "label": "Use a supported document file",
+          "allOf": [
+            "document-file"
+          ]
+        }
+      ],
+      "durationMinutes": 10,
+      "availabilityWindows": []
+    },
+    {
+      "id": "submit-documents",
+      "label": "Submit the evidence packet",
+      "description": "Submit identity and income evidence through an allowed channel.",
+      "kind": "document",
+      "confirmation": {
+        "status": "confirmed",
+        "confirmedBy": "Pineglass Institute service-design reviewer",
+        "confirmedAt": "2026-07-20T12:00:00.000Z"
+      },
+      "citations": [
+        {
+          "sourceId": "pineglass-access-grant-guide",
+          "locator": "Page 3 · Document submission",
+          "quote": "Print the packet, sign it, scan it, and upload the resulting file."
+        }
+      ],
+      "prerequisiteRoutes": [
+        {
+          "id": "verified-and-prepared",
+          "label": "Identity and evidence ready",
+          "allOf": [
+            "verify-identity",
+            "prepare-income-proof"
+          ]
+        }
+      ],
+      "capabilityRoutes": [
+        {
+          "id": "paper-workflow",
+          "label": "Print and scan",
+          "allOf": [
+            "printer",
+            "scanner"
+          ]
+        }
+      ],
+      "durationMinutes": 20,
+      "availabilityWindows": []
+    },
+    {
+      "id": "advisor-review",
+      "label": "Complete the advisor review",
+      "description": "Join a short live review after the evidence packet is submitted.",
+      "kind": "support",
+      "confirmation": {
+        "status": "confirmed",
+        "confirmedBy": "Pineglass Institute service-design reviewer",
+        "confirmedAt": "2026-07-20T12:00:00.000Z"
+      },
+      "citations": [
+        {
+          "sourceId": "pineglass-access-grant-guide",
+          "locator": "Page 4 · Advisor review",
+          "quote": "Advisor reviews are available during the published daytime appointment windows."
+        }
+      ],
+      "prerequisiteRoutes": [
+        {
+          "id": "packet-submitted",
+          "label": "Evidence packet submitted",
+          "allOf": [
+            "submit-documents"
+          ]
+        }
+      ],
+      "capabilityRoutes": [
+        {
+          "id": "remote-call",
+          "label": "Join a live call",
+          "allOf": [
+            "live-call"
+          ]
+        }
+      ],
+      "durationMinutes": 20,
+      "availabilityWindows": [
+        {
+          "startsAt": "2026-08-04T09:00:00.000Z",
+          "endsAt": "2026-08-04T16:00:00.000Z",
+          "label": "Tuesday daytime review"
+        },
+        {
+          "startsAt": "2026-08-05T09:00:00.000Z",
+          "endsAt": "2026-08-05T16:00:00.000Z",
+          "label": "Wednesday daytime review"
+        }
+      ]
+    },
+    {
+      "id": "access-grant-ready",
+      "label": "Reach Access Grant readiness",
+      "description": "Complete every published onboarding requirement for the grant.",
+      "kind": "outcome",
+      "confirmation": {
+        "status": "confirmed",
+        "confirmedBy": "Pineglass Institute service-design reviewer",
+        "confirmedAt": "2026-07-20T12:00:00.000Z"
+      },
+      "citations": [
+        {
+          "sourceId": "pineglass-access-grant-guide",
+          "locator": "Page 4 · Completion",
+          "quote": "Onboarding is complete after the advisor review is recorded."
+        }
+      ],
+      "prerequisiteRoutes": [
+        {
+          "id": "review-complete",
+          "label": "Advisor review completed",
+          "allOf": [
+            "advisor-review"
+          ]
+        }
+      ],
+      "capabilityRoutes": [],
+      "durationMinutes": 0,
+      "availabilityWindows": []
+    }
+  ]
+}
