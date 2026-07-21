@@ -1628,8 +1628,34 @@ button {
   margin: 0;
 }
 
-.ac-footer span {
+.ac-footer-meta {
+  display: grid;
   flex: 0 0 auto;
+  gap: 4px;
+  justify-items: end;
+}
+
+.ac-project-links {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.ac-project-links a {
+  color: #adc1b8;
+  text-decoration: none;
+  text-underline-offset: 3px;
+}
+
+.ac-project-links a:hover,
+.ac-project-links a:focus-visible {
+  color: var(--ac-mint);
+  text-decoration: underline;
+}
+
+.ac-project-links > span {
+  opacity: 0.55;
 }
 
 @keyframes ac-stage-enter {
@@ -2052,6 +2078,15 @@ button {
     flex-direction: column;
     gap: 6px;
     padding: 0 16px 28px;
+  }
+
+  .ac-footer-meta {
+    justify-items: start;
+  }
+
+  .ac-project-links {
+    flex-wrap: wrap;
+    white-space: normal;
   }
 }
 

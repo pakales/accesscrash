@@ -3,8 +3,12 @@
 **Eligibility is not access.**
 
 [Open the signed-out live demo](https://accesscrash.e-vigelis.chatgpt.site) ·
+[Review the source](https://github.com/pakales/accesscrash) ·
 [Watch the 2:40 Build Week demo](https://youtu.be/aNcP-um0aZk) ·
 [View the submitted Devpost project](https://devpost.com/software/accesscrash)
+
+An [EV1 Labs](https://ev1labs.com/) Build Week project ·
+[Explore the 2026 collection](https://ev1labs.com/labs/build-week-2026/)
 
 AccessCrash is an Education-track process crash tester. It turns bounded
 application instructions into a source-grounded graph, asks a human to confirm
@@ -353,5 +357,6 @@ auditable against all four.
 
 ## License
 
-MIT © 2026 Evl Labs. See [`LICENSE`](LICENSE). Do not add a public repository or
-live-app URL until that exact surface exists and has been verified signed out.
+MIT © 2026 Evl Labs. See [`LICENSE`](LICENSE). The public demo, source, video,
+and Devpost links above are the verified submission surfaces; keep them aligned
+with the exact published revision.
