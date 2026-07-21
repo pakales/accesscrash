@@ -309,7 +309,7 @@ must never be described as evidence that GPT processed the selected source.
 
 - **Live app:** [accesscrash.e-vigelis.chatgpt.site](https://accesscrash.e-vigelis.chatgpt.site)
 - **Code repository:** [github.com/pakales/accesscrash](https://github.com/pakales/accesscrash)
-- **Public YouTube demo:** [youtu.be/aNcP-um0aZk](https://youtu.be/aNcP-um0aZk)
+- **Public YouTube demo:** [youtu.be/S7GzHz8OldE](https://youtu.be/S7GzHz8OldE)
 - **Devpost entry:** [devpost.com/software/accesscrash](https://devpost.com/software/accesscrash)
 - **Primary Codex Session ID:** `019f7221-2421-78e3-b12e-f6082da1ed87`
 - **License:** [MIT](../LICENSE)

@@ -1,7 +1,7 @@
 # AccessCrash 2:40 Build Week Demo
 
 This is the exact narrative contract used for the published competition video.
-The video is [publicly addressable on YouTube](https://youtu.be/aNcP-um0aZk)
+The video is [publicly addressable on YouTube](https://youtu.be/S7GzHz8OldE)
 and demonstrates the signed-out build at
 [accesscrash.e-vigelis.chatgpt.site](https://accesscrash.e-vigelis.chatgpt.site).
 
@@ -139,7 +139,7 @@ and demonstrates the signed-out build at
 
 ## Final media evidence
 
-- YouTube: <https://youtu.be/aNcP-um0aZk>
+- YouTube: <https://youtu.be/S7GzHz8OldE>
 - Local candidate SHA-256:
   `0da9722f6ec0cbfef84a9a16b7e6211454ba32610a67de84b741aab91c946804`
 - Automated media QA: 160.000 s, 1080p, 30 fps, −16.01 LUFS, no speech

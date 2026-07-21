@@ -4,7 +4,7 @@
 
 [Open the signed-out live demo](https://accesscrash.e-vigelis.chatgpt.site) ·
 [Review the source](https://github.com/pakales/accesscrash) ·
-[Watch the 2:40 Build Week demo](https://youtu.be/aNcP-um0aZk) ·
+[Watch the 2:40 Build Week demo](https://youtu.be/S7GzHz8OldE) ·
 [View the submitted Devpost project](https://devpost.com/software/accesscrash)
 
 An [EV1 Labs](https://ev1labs.com/) Build Week project ·
