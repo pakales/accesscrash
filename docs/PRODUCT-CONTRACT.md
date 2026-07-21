@@ -36,7 +36,9 @@ Grant** emergency-aid process. It supports:
 1. pasting bounded public/non-personal process instructions or loading one
    bounded `.pdf`, `.txt`, or `.md` source;
 2. compiling a source-grounded draft process graph with GPT-5.6;
-3. reviewing and confirming the draft before evaluation;
+3. inspecting each rule's prerequisites, capability routes, duration,
+   availability, and citations, then either confirming the draft as displayed
+   or rejecting it and recompiling before evaluation;
 4. running deterministic reachability against synthetic capability profiles;
 5. showing a valid path, exact blockers, unresolved evidence, and relevant
    source excerpts;
@@ -57,7 +59,7 @@ accepted source is persisted.
 | Layer | Owns | Must not own |
 | --- | --- | --- |
 | GPT-5.6 | Extracting a structured draft from supplied instructions, preserving source grounding, surfacing ambiguity | Confirmation, reachability verdicts, eligibility, fairness, legality, compliance |
-| Human reviewer | Confirming or correcting the graph and choosing a bounded capability profile | Delegating critical judgment back to an unlabeled model guess |
+| Human reviewer | Inspecting and either confirming the displayed graph or rejecting it and recompiling, then choosing a bounded capability profile | Delegating critical judgment back to an unlabeled model guess or implying an edit that V1 cannot perform |
 | Deterministic engine | Graph validation, path search, cycle detection, capability constraints, `REACHABLE` / `BLOCKED` / `UNKNOWN` | Inventing missing policy, interpreting intent, deciding eligibility |
 | Codex | Designing, implementing, testing, auditing, and documenting the product | Runtime decisions about any applicant |
 
@@ -72,12 +74,19 @@ inside the human review boundary. No authoritative reachability verdict is
 allowed in the model contract. The compile envelope also returns
 `confirmed: false` as a redundant, explicit boundary signal.
 
+A valid declared graph has exactly one referenced outcome contract: the
+`journey.outcomeStepId` exists, that step has `kind: "outcome"`, and every
+declared step is recursively connected into the outcome's dependency closure.
+Orphan or unrelated declared steps are rejected rather than ignored.
+
 ### Confirmed state
 
-A person has reviewed the graph and explicitly confirmed or corrected it.
-Confirmation means “this graph is an acceptable representation of the supplied
-synthetic instructions for this analysis.” It does not mean the policy is fair,
-legal, complete, or correct.
+A person has inspected the graph and explicitly confirmed it as displayed.
+If it is not acceptable, V1 offers rejection and recompilation; it has no graph
+editor and does not claim to correct a rule. Confirmation means “this displayed
+graph is an acceptable representation of the supplied synthetic instructions
+for this analysis.” It does not mean the policy is fair, legal, complete, or
+correct.
 
 ### Deterministic verdicts
 
@@ -86,15 +95,43 @@ legal, complete, or correct.
   profile.
 - `BLOCKED` — the confirmed graph proves there is no valid completion path for
   the selected profile and returns graph-grounded blockers.
-- `UNKNOWN` — an unconfirmed step, unknown capability, or unresolved timing or
-  dependency prevents either proof. A schema-invalid graph is rejected before
-  evaluation.
+- `UNKNOWN` — any unconfirmed declared step, unknown capability, unresolved
+  timing/dependency, unprovable non-overlapping schedule, or bounded
+  exact-analysis limit prevents either proof. An unconfirmed declared step
+  cannot be ignored merely because a candidate route does not traverse it. A
+  schema-invalid graph is rejected before evaluation.
 
 Absence of a modeled barrier is not proof of real-world accessibility.
+
+### Evaluation, report, and comparison integrity
+
+- The engine evaluates the exact schema-valid process and profile supplied to
+  it; changing either requires a fresh assessment.
+- Report generation independently re-evaluates that exact process/profile and
+  rejects the caller-supplied assessment unless the complete deterministic
+  result matches. Matching process, version, and profile IDs alone does not make
+  stale or forged assessment content trustworthy.
+- A before/after comparison is valid only when both process versions declare
+  the same outcome and the same capability-ID vocabulary. It accepts at most 64
+  profiles and records blocker IDs, unknown-reason IDs, and canonical complete
+  assessment-evidence fingerprints on both sides so content changes remain
+  visible even when both verdicts are `BLOCKED` or both are `UNKNOWN`.
+- A single-person `REACHABLE` result requires a proven non-overlapping serialized
+  schedule for the selected steps within their windows and deadline. If bounded
+  analysis cannot prove one valid order or prove that none exists, the result is
+  `UNKNOWN`, not optimistic `REACHABLE` or false `BLOCKED`.
+- `allOf` members are unordered logical conjunctions and are canonicalized before
+  evaluation. Cycle evidence uses a canonical representative so input
+  permutation cannot rewrite the proof.
+- Deterministic aggregate work budgets bound exact blocker and scheduling
+  evaluation. Exhaustion fails fast to `UNKNOWN` with `analysis-limit`; no
+  partial computation is upgraded into a definitive verdict.
 
 ## Capability profiles
 
 V1 profiles are fictional functional constraints, not demographic personas.
+Selecting zero constraints is a valid control twin; a process with no declared
+capabilities can still run that control instead of dead-ending the UI.
 Examples include:
 
 - mobile-only;
@@ -129,6 +166,24 @@ cannot be byte-matched locally, so the API returns an explicit review warning.
 These checks do not prove semantic support, document authenticity, or PDF quote
 provenance.
 
+### Exact Pineglass live normalization
+
+The exact bundled **Pineglass Institute · Access Grant** source has one explicit
+demo-only reproducibility contract. Only when both its source name and normalized
+source text match the bundled case does the live route:
+
+1. call GPT-5.6 for grounded extraction;
+2. require that model output to pass structural, authority, and source-grounding
+   validation;
+3. deterministically normalize the accepted draft to the documented Pineglass
+   fixture topology; and
+4. return a visible warning that the topology was normalized.
+
+This preserves stable fixture IDs for the deterministic repair/regression demo
+without pretending the model independently reproduced the canonical topology.
+General sources retain their validated model-produced topology and are never
+normalized to Pineglass or another fixture.
+
 ## Fallback contract
 
 If the production live gate is disabled, or GPT-5.6 is unavailable, refuses,
@@ -141,6 +196,10 @@ synthetic demonstration graph with
 - returns top-level `confirmed: false`;
 - contains no model-authored verdict;
 - exists only to keep the synthetic product demonstration inspectable.
+
+The public live-model gate remains disabled until server-side identity and
+persistent per-user quota/rate controls are implemented and verified. The
+server flag by itself is neither authentication nor a quota.
 
 ## Non-goals
 
@@ -162,13 +221,15 @@ AccessCrash V1 does not:
 The prototype is complete only when a judge can, without real student data:
 
 1. understand the “eligibility versus access” distinction in the first screen;
-2. inspect a GPT-5.6-generated, source-grounded and unconfirmed draft;
-3. explicitly confirm the graph;
+2. inspect a GPT-5.6-generated, source-grounded and unconfirmed draft and, for
+   the exact bundled Pineglass live source, see the normalization warning;
+3. explicitly confirm the graph as displayed or reject it and recompile;
 4. see one synthetic profile reach completion;
 5. see a capability twin become `BLOCKED` at an exact graph-grounded step;
 6. see incomplete evidence produce `UNKNOWN` rather than a guess;
-7. apply the three-alternative minimum repair set and observe deterministic
-   recomputation;
+7. apply the bundled three-alternative repair set and observe the actual
+   deterministic recomputation, including a non-recovery when another selected
+   constraint remains;
 8. distinguish the runtime GPT role from Codex's build role;
 9. identify the prototype's privacy and decision boundaries without reading
    fine print.

@@ -10,7 +10,11 @@ export type RuleView = {
   detail: string;
   citation: string;
   sourceLabel: string;
-  required: boolean;
+  topologyLabel: string;
+  prerequisites: string[];
+  capabilityRequirements: string[];
+  duration: string;
+  availability: string;
 };
 
 export type CapabilityId = string;
@@ -44,6 +48,9 @@ export type OutcomeView = {
   diagnosisTitle: string;
   diagnosisDetail: string;
   diagnosisCitation: string;
+  afterDiagnosisTitle: string;
+  afterDiagnosisDetail: string;
+  afterDiagnosisCitation: string;
   repairTitle: string;
   repairDetail: string;
   repairActionLabel: string;

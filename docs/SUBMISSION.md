@@ -21,16 +21,18 @@ Eligibility is not access.
 **One-line description**
 
 GPT-5.6 compiles education-application instructions into a cited process graph;
-a human confirms it, and deterministic code proves whether a bounded capability
-profile can reach the outcome.
+a human confirms the displayed draft or rejects it for recompilation, and
+deterministic code proves whether a bounded capability profile can reach the
+outcome.
 
 **Short description**
 
 AccessCrash finds operational dead ends hidden inside education-support
-processes. GPT-5.6 produces a source-grounded draft, a human confirms every
-rule, and a deterministic engine returns `REACHABLE`, `BLOCKED`, or `UNKNOWN`
-with the exact path, blocker, cycle, or missing evidence. The demo uses the
-fictional Pineglass Institute · Access Grant and no real student data.
+processes. GPT-5.6 produces a source-grounded draft, a human inspects and
+confirms it as displayed or rejects it for recompilation, and a deterministic
+engine returns `REACHABLE`, `BLOCKED`, or `UNKNOWN` with the exact path,
+blocker, cycle, or missing evidence. The demo uses the fictional Pineglass
+Institute · Access Grant and no real student data.
 
 ## Full description
 
@@ -62,17 +64,26 @@ process.
    rules retain inspectable candidate source citations and the result remains
    unconfirmed. V1 byte-matches normalized quotes for text sources; PDF excerpts
    remain explicitly review-bound. It does not attest document authenticity or
-   semantic support.
-2. A human reviews and confirms or corrects every rule. Ambiguity remains
-   visible rather than becoming model certainty.
+   semantic support. For the exact bundled Pineglass source only, validated
+   grounded live extraction is then deterministically normalized to the
+   documented fixture topology with a visible warning; general sources are not
+   normalized.
+2. A human inspects citations plus each rule's prerequisites, capability routes,
+   duration, and availability, then either confirms the displayed draft as-is or
+   rejects it and recompiles. V1 has no graph editor and does not claim to
+   correct a rule. Ambiguity remains visible rather than becoming model
+   certainty.
 3. Deterministic code compares a standard synthetic profile with a
    capability-constrained twin. Only access conditions differ.
 4. The engine returns `REACHABLE`, `BLOCKED`, or `UNKNOWN` and shows the valid
    route, exact blocker, relevant cycle, or unresolved evidence that produced
    it.
-5. The demo applies a minimum repair set of three bounded in-memory alternatives
-   — email verification, mobile upload, and evening review — and runs the same
-   profile again, producing a clear BEFORE / AFTER regression.
+5. For the bundled default constrained twin, the demo applies a three-change
+   repair set of bounded in-memory alternatives — email verification, mobile
+   upload, and evening review — and runs the same profile again, producing a
+   clear BEFORE / AFTER recovery. If a judge selects another constraint that the
+   set does not address, the UI reports the actual remaining `BLOCKED` or
+   `UNKNOWN` result instead of claiming recovery.
 
 The language model cannot decide reachability or eligibility because those
 fields are absent from its output contract. A graph is not eligible for
@@ -105,14 +116,34 @@ quota/rate controls are implemented and verified.
 The result is validated twice: first for strict structure, then for authority
 and graph invariants. The compile envelope is always `confirmed: false`, every
 step begins `unconfirmed`, and the model contract contains no verdict. Missing
-key, refusal, timeout, API failure, or invalid output produces a visibly labeled
-synthetic fallback instead of pretending a live compile succeeded.
+key, refusal, timeout, API failure, exact-Pineglass identifier/route-contract
+drift, or invalid output produces a visibly labeled synthetic fallback instead
+of pretending a live compile succeeded.
+
+Graph invariants require the declared outcome to reference a step with
+`kind: "outcome"` and every declared step to belong to that outcome's dependency
+closure. Any unconfirmed declared step makes the deterministic result `UNKNOWN`;
+it cannot be ignored because an apparent path does not traverse it.
 
 After confirmation, a side-effect-free engine performs graph reachability,
 cycle and blocker analysis, capability-twin comparison, and before/after
 regression. The prototype has no application persistence. The public demo and
 fixtures are synthetic; runtime intake is limited to authorized, non-personal
 process documents.
+
+Because each profile represents one person, a `REACHABLE` path must have a
+proven non-overlapping serialized schedule inside its windows and deadline. If
+bounded ordering remains ambiguous, the engine returns `UNKNOWN` rather than
+assuming parallel work or declaring a false block. `allOf` is unordered and
+canonicalized; cycle evidence uses a canonical representative. Deterministic
+aggregate work budgets fail fast to `analysis-limit` `UNKNOWN`.
+
+Report generation re-evaluates the exact process/profile and rejects a stale or
+forged caller-supplied assessment whose complete result differs. Before/after
+comparison requires the same declared outcome and identical capability-ID
+vocabulary, is capped at 64 profiles, and exposes blocker/unknown-reason IDs plus
+canonical assessment-evidence fingerprints on both sides, including content
+changes between two equal verdicts.
 
 ### How Codex and GPT-5.6 were used
 
@@ -152,8 +183,9 @@ pure code.
 #### Making uncertainty a real state
 
 A binary pass/fail interface would force missing evidence into false
-confidence. `UNKNOWN` is therefore a first-class deterministic outcome for an
-unconfirmed step, unknown capability, or unresolved timing or dependency.
+confidence. `UNKNOWN` is therefore a first-class deterministic outcome for any
+unconfirmed declared step, unknown capability, unresolved timing/dependency, or
+bounded exact-analysis limit.
 
 #### Demonstrating impact without sensitive data
 
@@ -166,8 +198,10 @@ claiming to evaluate a real student.
 
 The **Test 3-change repair set** action swaps to a bounded in-memory state of the
 fictional process with three alternatives applied together. It does not edit an
-institution's policy, and a reachable graph does not certify that a real change
-is safe, fair, legal, or complete.
+institution's policy. It opens the bundled default twin's route, but may leave a
+different selected twin blocked or unknown; the UI follows the actual engine
+result. A reachable graph does not certify that a real change is safe, fair,
+legal, or complete.
 
 ### Accomplishments
 
@@ -250,10 +284,11 @@ student data is required.
 2. Load **Pineglass Institute · Access Grant** and confirm the fictional, synthetic,
    no-persistence labels.
 3. Select **Compile access path**.
-4. Confirm the mode is `live` for GPT-5.6 or transparently `fallback`; never
-   confuse the two.
-5. Inspect source citations and confirm the rules with **Confirm N source-linked
-   rules**.
+4. Confirm the mode is truthfully `live` or `fallback`; never confuse the two.
+   On an exact bundled Pineglass live run, inspect the visible warning that the
+   grounded draft was normalized to the canonical fixture topology.
+5. Inspect source citations. Confirm the displayed draft with **Confirm N
+   source-linked rules**, or reject it and recompile; V1 does not edit rules.
 6. Compare the fixed standard profile with the capability-constrained twin.
 7. Select **Run deterministic crash test**.
 8. Inspect BEFORE `BLOCKED`, the exact source-linked blocker, and the process
@@ -262,9 +297,11 @@ student data is required.
    the regression comparison.
 10. Select **Start another test** to clear the in-memory analysis.
 
-The core flow takes about 90 seconds. A live compile is the intended submitted
-path. If it is unavailable, fallback remains judgeable but must be described as
-synthetic and not as evidence that GPT processed the selected source.
+The core flow takes about 90 seconds. Unless server-side identity and persistent
+per-user quota/rate controls are implemented and verified, the public submitted
+build must keep live GPT disabled and expose the transparent synthetic fallback.
+A separately verified live run may demonstrate GPT integration, but fallback
+must never be described as evidence that GPT processed the selected source.
 
 ## Links
 
@@ -283,6 +320,8 @@ weighted criteria.
 ### Technological implementation
 
 - meaningful GPT-5.6 structured compilation with source grounding;
+- exact-case Pineglass normalization that visibly separates grounded GPT
+  extraction from deterministic demo topology;
 - a model schema that deliberately excludes authoritative verdicts;
 - explicit human confirmation boundary;
 - pure deterministic reachability, blockers, cycles, capability twins, and
@@ -352,7 +391,23 @@ Before submission, verify each item against the exact public source and build:
 - [ ] The production live-model flag remains false unless server-side identity
       and persistent quota/rate controls have passed deployed verification.
 - [ ] Model output remains unconfirmed and contains no verdict.
+- [ ] Declared outcome has `kind: "outcome"`; every declared step belongs to its
+      dependency closure; any unconfirmed declared step yields `UNKNOWN`.
 - [ ] Confirmation is invalidated after relevant changes.
+- [ ] Confirmation accepts the displayed draft or rejects/recompiles it; public
+      copy does not imply a graph editor or automatic correction.
+- [ ] Report generation rejects stale or forged assessment content after fresh
+      evaluation of the exact process/profile.
+- [ ] Version comparison requires the same outcome and capability-ID vocabulary and
+      exposes blocker and unknown-reason IDs before and after.
+- [ ] A single-person `REACHABLE` path has a proven non-overlapping serialized
+      schedule; ambiguous bounded overlap returns `UNKNOWN`.
+- [ ] `allOf` permutations and cycle discovery order produce canonical evidence.
+- [ ] Deterministic exact-analysis work-budget exhaustion fails fast to `analysis-limit`
+      `UNKNOWN`, never partial confident output.
+- [ ] Exact bundled Pineglass live mode visibly discloses deterministic fixture
+      normalization after grounded GPT validation; general sources are not
+      normalized.
 - [ ] Standard, constrained, repaired, regressed, and unknown cases match the
       deterministic engine contract.
 - [ ] PDF/TXT/Markdown limits, provider-side PDF extraction, exact model,

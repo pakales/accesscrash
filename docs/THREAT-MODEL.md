@@ -26,6 +26,8 @@ casework. Demo, fixture, screenshot, and test material is fully synthetic.
    spend or graph work.
 7. Product copy does not convert a narrow graph result into an eligibility,
    fairness, legal, or compliance claim.
+8. Orphan steps, an invalid outcome kind, stale assessments, or mismatched
+   comparisons cannot bypass deterministic authority checks.
 
 ## Assets
 
@@ -75,8 +77,13 @@ draft true.
 | Model-authored eligibility or verdict | GPT says a student qualifies or a path passes | Omit those fields from model schema; reject unknown authority fields; deterministic engine owns verdict enum | Model prose must also be kept out of authoritative UI regions |
 | Confirmation bypass | UI or crafted input evaluates an unconfirmed graph | Engine checks the confirmation precondition and returns non-authoritative `UNKNOWN` or a contract error | Client-only confirmation is not identity assurance; this prototype has no approval workflow |
 | Stale confirmation | Source, graph, or rule changes after review but old verdict remains visible | Any graph or source mutation invalidates confirmation and recomputes; clear stale report state | Visual state bugs remain possible and require interaction tests |
+| Hidden unconfirmed or orphan step | A caller adds an unconfirmed step outside the apparent happy path so the UI ignores it while showing authority | Require every declared step to belong to the declared outcome dependency closure; require the outcome step to have `kind: "outcome"`; return `UNKNOWN` when any declared step is unconfirmed | A fully confirmed but semantically wrong graph can still be accepted by a reviewer |
+| Optimistic parallel schedule | Sibling requirements are treated as simultaneous even though one synthetic profile represents one person | Require a proven non-overlapping serialized schedule inside declared windows and deadline; ambiguous bounded ordering returns `UNKNOWN` | V1 models one person and cannot infer real staffing, assistance, or multitasking |
 | Client graph tampering | Caller inserts impossible nodes, duplicate IDs, unknown predicates, or cycles intended to confuse output | Strict schemas, referential-integrity checks, enum constraints, graph-size caps, pure evaluation | The engine proves only the validated supplied graph, not source authenticity |
+| Stale or forged report assessment | Caller supplies matching IDs but changes outcome, path, blockers, or unresolved reasons before report formatting | Report creation re-evaluates the exact process/profile and rejects any complete-result mismatch | Integrity is in-process validation, not a signature or external attestation |
+| Invalid version comparison | Before/after graphs silently change the declared outcome or capability-ID vocabulary, hide changed evidence behind the same verdict, or supply an unbounded profile list | Require the same declared outcome and identical declared capability-ID vocabulary; cap comparisons at 64 profiles; retain blocker/unknown IDs and canonical complete assessment-evidence fingerprints before and after | A valid graph comparison still cannot predict real-world impact |
 | Fallback presented as live | Model failure silently substitutes a sample graph | Return `mode: "fallback"`, warnings, and only `unconfirmed` steps; label the bundled graph synthetic; never claim it came from user text | Users may ignore labels; fallback UI must be visually prominent |
+| Canonical demo normalization hidden | The exact Pineglass live response is presented as if GPT independently authored the stable fixture topology | Call GPT and validate grounded extraction first; normalize only the exact bundled name/text match; emit a visible normalization warning; never normalize general sources | Reviewers may still misunderstand the distinction unless the warning remains prominent |
 | Personal data pasted by mistake | Student, applicant, family, or confidential case data is sent to the model | Prominent public/non-personal-document-only warning; explicit prohibition on student records and PII; bounded input; no application persistence; `store: false`; synthetic fixtures and screenshots | `store: false` is not a substitute for a real privacy program; prevention depends partly on user behavior |
 | Secret disclosure | API key reaches browser, logs, error bodies, fixture, or git | Server-only environment variable; never `NEXT_PUBLIC_`; sanitized errors; secret scans before handoff | Hosting configuration must be checked separately from source review |
 | Stored-data exposure | Source, graph, or report remains in D1/R2/logs | No application persistence or analytics payloads containing content; no D1/R2 requirement; keep response data in transient UI state | Infrastructure request logs may retain metadata; provider behavior is outside this repository |
@@ -84,7 +91,7 @@ draft true.
 | SSRF or malicious document behavior | A PDF contains links, actions, malformed objects, or content that attempts external retrieval | Accept only one bounded PDF/TXT/MD; verify extension, MIME, size, and PDF signature; keep bytes in memory; send PDF as provider-side `input_file`; disable app URL fetching, tools, shell, and embedded actions | Provider-side PDF parsing is an external trust boundary; malformed-file behavior and provider limits require integration tests |
 | Oversized request or graph | Large text/model output consumes memory, tokens, or CPU | Content-length and parsed-size caps; bounded strings, nodes, edges, citations, and warnings; explicit timeout | Exact production proxy limits must still be verified |
 | API-cost exhaustion | Anonymous or non-browser callers repeatedly trigger GPT-5.6 | Production fails closed to fallback unless the explicit server flag is true; cross-origin browser requests are rejected when metadata is supplied; one bounded model call maximum; zero retries; identity and persistent quota/rate controls required before enabling public live use | The flag and origin checks are not authentication or rate limiting; misconfiguration without verified controls reopens public spend risk |
-| Algorithmic denial of service | Adversarial graph causes excessive traversal or cycle work | Small schema caps, memoized graph evaluation, bounded blocker-set expansion, and linear-time cycle detection | Limits must be exercised by tests at maximum accepted size |
+| Algorithmic denial of service | Adversarial graph causes excessive traversal, scheduling, cycle work, or combinatorial blocker expansion | Small schema caps, memoized evaluation, deterministic aggregate work budgets that fail fast to `analysis-limit` `UNKNOWN`, canonical unordered `allOf`, and canonical cycle evidence | Limits must be exercised by tests at maximum accepted size; `UNKNOWN` may require narrower follow-up analysis |
 | Protected-trait inference | Capability constraints become proxies for demographic classification | Use functional constraints only; do not request or infer protected traits; no real applicants; no population ranking | Functional barriers can still correlate with protected traits; field use requires governance and research |
 | Policy overclaim | UI turns a graph result into fairness, accessibility, legal, or compliance certification | Narrow verdict language and persistent scope copy; no certification badges or applicant recommendation | Marketing drift is a continuing review risk |
 | Unofficial or stale source | A user pastes incomplete or outdated instructions | Display source name and scope; require human confirmation; state that authority and freshness are not verified | AccessCrash cannot authenticate source provenance in V1 |
@@ -131,11 +138,22 @@ Human confirmation is a safety boundary, not decorative UI. The implementation
 must preserve these invariants:
 
 1. a compiled draft begins unconfirmed;
-2. confirmation is explicit and covers every reviewable rule;
+2. confirmation is explicit, covers every displayed rule, and means acceptance
+   as displayed; a rejected draft is recompiled because V1 has no graph editor;
 3. any rule, graph, source, or profile mutation invalidates stale evaluation;
-4. deterministic reports identify the exact graph/profile version they used;
-5. fallback state remains visible after confirmation;
-6. `UNKNOWN` is preferred whenever evidence cannot support a proof.
+4. every declared step belongs to an outcome dependency closure whose declared
+   outcome step has `kind: "outcome"`;
+5. any unconfirmed declared step makes the result `UNKNOWN`;
+6. deterministic report creation re-evaluates the exact graph/profile and
+   rejects a mismatched assessment rather than trusting identity fields;
+7. before/after comparison requires the same outcome and capability-ID vocabulary
+   and preserves changed blocker and unknown-reason IDs;
+8. a single-person `REACHABLE` result has a proven non-overlapping serialized
+   schedule; ambiguous bounded ordering is `UNKNOWN`;
+9. fallback or exact-Pineglass normalization state remains visible after
+   confirmation;
+10. `UNKNOWN` is preferred whenever evidence cannot support a proof or a
+    deterministic exact-analysis work budget is exhausted.
 
 ## Deployment gates
 

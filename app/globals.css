@@ -963,6 +963,39 @@ button {
   line-height: 1.5;
 }
 
+.ac-rule-facts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1px;
+  overflow: hidden;
+  margin: 12px 0 0;
+  border: 1px solid var(--ac-line);
+  border-radius: 12px;
+  background: var(--ac-line);
+}
+
+.ac-rule-facts div {
+  min-width: 0;
+  padding: 10px 11px;
+  background: rgb(4 18 15 / 92%);
+}
+
+.ac-rule-facts dt {
+  margin-bottom: 4px;
+  color: var(--ac-ink-muted);
+  font-size: 8px;
+  font-weight: 680;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.ac-rule-facts dd {
+  margin: 0;
+  color: var(--ac-ink-secondary);
+  font-size: 10px;
+  line-height: 1.35;
+}
+
 .ac-citation {
   display: grid;
   grid-template-columns: 14px minmax(0, 1fr) auto;
@@ -1117,6 +1150,19 @@ button {
   border: 1px solid var(--ac-line);
   border-radius: 16px;
   background: var(--ac-line);
+}
+
+.ac-empty-capability-note {
+  display: grid;
+  min-height: 76px;
+  place-items: center;
+  border: 1px solid var(--ac-line);
+  border-radius: 16px;
+  background: rgb(4 18 15 / 88%);
+  color: var(--ac-ink-secondary);
+  font-size: 12px;
+  font-weight: 620;
+  text-align: center;
 }
 
 .ac-capability-option {
@@ -1340,7 +1386,7 @@ button {
 }
 
 .ac-version-switch button {
-  min-height: 32px;
+  min-height: 44px;
   font-size: 9px;
 }
 
@@ -1710,7 +1756,7 @@ button {
   }
 
   .ac-segmented button {
-    min-height: 40px;
+    min-height: 44px;
     padding: 0 5px;
     font-size: 9px;
   }
@@ -2020,6 +2066,10 @@ button {
 
   .ac-segmented button {
     font-size: 11px;
+  }
+
+  .ac-rule-facts {
+    grid-template-columns: 1fr;
   }
 }
 

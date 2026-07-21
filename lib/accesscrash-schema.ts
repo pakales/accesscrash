@@ -2,6 +2,11 @@ import { z } from "zod";
 
 export const ACCESSCRASH_SCHEMA_VERSION = "1.0" as const;
 export const ACCESSCRASH_EVALUATOR_VERSION = "1.0.0" as const;
+export const ACCESSCRASH_MAX_STEPS = 160;
+export const ACCESSCRASH_MAX_CAPABILITIES = 64;
+export const ACCESSCRASH_MAX_COMPARISON_PROFILES = 64;
+export const ACCESSCRASH_MAX_DERIVED_ITEMS =
+  ACCESSCRASH_MAX_STEPS * (ACCESSCRASH_MAX_CAPABILITIES + 2);
 
 const identifierSchema = z
   .string()
@@ -142,8 +147,10 @@ const accessProcessObjectSchema = z
       })
       .strict(),
     sources: z.array(sourceDocumentSchema).min(1).max(32),
-    capabilities: z.array(capabilityDefinitionSchema).max(64),
-    steps: z.array(accessStepSchema).min(1).max(160),
+    capabilities: z
+      .array(capabilityDefinitionSchema)
+      .max(ACCESSCRASH_MAX_CAPABILITIES),
+    steps: z.array(accessStepSchema).min(1).max(ACCESSCRASH_MAX_STEPS),
   })
   .strict();
 
@@ -222,6 +229,46 @@ function validateAccessProcessStructure(
       path: ["journey", "outcomeStepId"],
       message: "The outcome step must reference a declared step.",
     });
+  } else {
+    const outcomeStep = process.steps.find(
+      (step) => step.id === process.journey.outcomeStepId,
+    );
+    if (outcomeStep?.kind !== "outcome") {
+      context.addIssue({
+        code: "custom",
+        path: ["journey", "outcomeStepId"],
+        message: "The declared outcome step must have kind outcome.",
+      });
+    }
+
+    const stepById = new Map(
+      process.steps.map((step) => [step.id, step] as const),
+    );
+    const dependencyClosure = new Set<string>();
+    const pending = [process.journey.outcomeStepId];
+    while (pending.length > 0) {
+      const stepId = pending.pop();
+      if (!stepId || dependencyClosure.has(stepId)) continue;
+      dependencyClosure.add(stepId);
+      const step = stepById.get(stepId);
+      if (!step) continue;
+      for (const dependencyId of step.prerequisiteRoutes.flatMap(
+        (route) => route.allOf,
+      )) {
+        if (!dependencyClosure.has(dependencyId)) pending.push(dependencyId);
+      }
+    }
+
+    for (const [index, step] of process.steps.entries()) {
+      if (!dependencyClosure.has(step.id)) {
+        context.addIssue({
+          code: "custom",
+          path: ["steps", index],
+          message:
+            "Every declared step must belong to the dependency closure of the outcome step.",
+        });
+      }
+    }
   }
 
   for (const [stepIndex, step] of process.steps.entries()) {
@@ -344,7 +391,10 @@ export const accessProcessSchema = accessProcessObjectSchema.superRefine(
 
 export const accessProcessDraftSchema = accessProcessObjectSchema
   .extend({
-    steps: z.array(unconfirmedAccessStepSchema).min(1).max(160),
+    steps: z
+      .array(unconfirmedAccessStepSchema)
+      .min(1)
+      .max(ACCESSCRASH_MAX_STEPS),
   })
   .strict()
   .superRefine(validateAccessProcessStructure);
@@ -398,7 +448,7 @@ export const accessBlockerSchema = z
     stepId: identifierSchema,
     message: z.string().min(2).max(500),
     capabilityIds: z.array(identifierSchema).max(16),
-    relatedStepIds: z.array(identifierSchema).max(32),
+    relatedStepIds: z.array(identifierSchema).max(ACCESSCRASH_MAX_STEPS),
     citations: z.array(sourceCitationSchema).min(1).max(8),
   })
   .strict();
@@ -411,11 +461,13 @@ export const accessUnknownReasonSchema = z
       "unknown-capability",
       "unresolved-dependency",
       "unresolved-time",
+      "schedule-unproven",
+      "analysis-limit",
     ]),
     stepId: identifierSchema,
     message: z.string().min(2).max(500),
     capabilityIds: z.array(identifierSchema).max(16),
-    relatedStepIds: z.array(identifierSchema).max(32),
+    relatedStepIds: z.array(identifierSchema).max(ACCESSCRASH_MAX_STEPS),
     citations: z.array(sourceCitationSchema).min(1).max(8),
   })
   .strict();
@@ -427,8 +479,12 @@ export const stepAssessmentSchema = z
     viaRouteId: identifierSchema.optional(),
     earliestStartAt: dateTimeSchema.optional(),
     completedAt: dateTimeSchema.optional(),
-    blockers: z.array(accessBlockerSchema).max(64),
-    unknownReasons: z.array(accessUnknownReasonSchema).max(64),
+    blockers: z
+      .array(accessBlockerSchema)
+      .max(ACCESSCRASH_MAX_DERIVED_ITEMS),
+    unknownReasons: z
+      .array(accessUnknownReasonSchema)
+      .max(ACCESSCRASH_MAX_DERIVED_ITEMS),
   })
   .strict();
 
@@ -441,11 +497,25 @@ export const accessAssessmentSchema = z
     profileId: identifierSchema,
     outcome: accessOutcomeSchema,
     outcomeStepId: identifierSchema,
-    pathStepIds: z.array(identifierSchema).max(160),
+    pathStepIds: z.array(identifierSchema).max(ACCESSCRASH_MAX_STEPS),
     earliestCompletionAt: dateTimeSchema.optional(),
-    steps: z.array(stepAssessmentSchema).min(1).max(160),
-    minimalBlockerSets: z.array(z.array(accessBlockerSchema).min(1).max(64)).max(32),
-    cycles: z.array(z.array(identifierSchema).min(1).max(160)).max(32),
+    steps: z
+      .array(stepAssessmentSchema)
+      .min(1)
+      .max(ACCESSCRASH_MAX_STEPS),
+    minimalBlockerSets: z
+      .array(
+        z
+          .array(accessBlockerSchema)
+          .min(1)
+          .max(ACCESSCRASH_MAX_DERIVED_ITEMS),
+      )
+      .max(32),
+    cycles: z
+      .array(
+        z.array(identifierSchema).min(1).max(ACCESSCRASH_MAX_STEPS),
+      )
+      .max(ACCESSCRASH_MAX_STEPS),
   })
   .strict();
 
@@ -456,6 +526,10 @@ export const regressionChangeSchema = z.enum([
   "UNCHANGED",
   "CHANGED",
 ]);
+
+const regressionEvidenceFingerprintSchema = z
+  .string()
+  .regex(/^assessment-evidence:[a-z0-9]{28}$/);
 
 export const processRegressionSchema = z
   .object({
@@ -472,11 +546,23 @@ export const processRegressionSchema = z
           beforeOutcome: accessOutcomeSchema,
           afterOutcome: accessOutcomeSchema,
           change: regressionChangeSchema,
-          beforeBlockerIds: z.array(z.string().min(2).max(220)).max(64),
-          afterBlockerIds: z.array(z.string().min(2).max(220)).max(64),
+          beforeBlockerIds: z
+            .array(z.string().min(2).max(220))
+            .max(ACCESSCRASH_MAX_DERIVED_ITEMS),
+          afterBlockerIds: z
+            .array(z.string().min(2).max(220))
+            .max(ACCESSCRASH_MAX_DERIVED_ITEMS),
+          beforeUnknownReasonIds: z
+            .array(z.string().min(2).max(220))
+            .max(ACCESSCRASH_MAX_DERIVED_ITEMS),
+          afterUnknownReasonIds: z
+            .array(z.string().min(2).max(220))
+            .max(ACCESSCRASH_MAX_DERIVED_ITEMS),
+          beforeEvidenceFingerprint: regressionEvidenceFingerprintSchema,
+          afterEvidenceFingerprint: regressionEvidenceFingerprintSchema,
         })
         .strict(),
-    ),
+    ).max(ACCESSCRASH_MAX_COMPARISON_PROFILES),
     counts: z
       .object({
         regressions: z.number().int().min(0),

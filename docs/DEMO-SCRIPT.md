@@ -7,8 +7,9 @@
 - **Format:** 16:9, 1080p, audible English narration, captions, readable cursor
 - **Build:** the exact public build submitted to judges
 - **Data:** only fictional Pineglass Institute · Access Grant content
-- **Core story:** instructions → GPT draft → human confirmation → deterministic
-  access crash → synthetic minimum repair set → reachable regression proof
+- **Core story:** instructions → live GPT draft or transparent fallback → human
+  confirmation → deterministic access crash → synthetic minimum repair set →
+  reachable regression proof
 
 Keep all primary text inside a safe area with at least 6% horizontal margin.
 Before recording, inspect the first and last frame at normal YouTube playback
@@ -43,15 +44,17 @@ synthetic, no-real-student-data, and no-persistence labels.
 
 ### 0:30–0:55 — GPT-5.6 compiles, but does not decide
 
-**Action:** Select **Compile access path**. Show the live model label, cited
-rule rows, and unconfirmed state.
+**Action:** Select **Compile access path**. Show the truthful live or fallback
+mode label, cited rule rows, and unconfirmed state. On an exact bundled live
+Pineglass run, also show the canonical-normalization warning.
 
 **Narration:**
 
-> GPT-5.6 converts the instructions into a structured process graph. Each rule
-> stays attached to the source text that supports it. Notice the state: draft,
-> source cited, not confirmed. The model has no reachability or eligibility
-> verdict in its output contract.
+> GPT-5.6 extracts grounded rules from these exact bundled instructions. After
+> validation, AccessCrash deterministically normalizes this one demo case to its
+> documented fixture topology, and says so on screen. General sources are not
+> normalized. The draft stays source cited and unconfirmed, and the model has no
+> reachability or eligibility verdict.
 
 If the recorded run is fallback, replace “GPT-5.6 converts” with:
 
@@ -63,14 +66,16 @@ Do not record fallback while narrating it as live.
 
 ### 0:55–1:16 — Human confirmation boundary
 
-**Action:** Open two citations, confirm the visible rules, then select
-**Confirm N source-linked rules**.
+**Action:** Open two citations, show the prerequisite, capability, duration, and
+window facts, point out **Reject and recompile**, then confirm the draft as
+displayed with **Confirm N source-linked rules**.
 
 **Narration:**
 
-> A person checks the graph before code is allowed to judge it. Confirmation
-> approves this representation of the synthetic instructions; it does not
-> certify the policy as fair, legal, or complete.
+> A person checks the graph before code is allowed to judge it. They can confirm
+> this displayed representation or reject it and recompile; this version does
+> not pretend to edit rules. Confirmation does not certify the policy as fair,
+> legal, or complete.
 
 ### 1:16–1:43 — Crash-test a capability twin
 
@@ -81,8 +86,10 @@ Select **Run deterministic crash test**.
 
 > Eligibility is held constant as an external synthetic assumption; AccessCrash
 > does not evaluate it. Only access capabilities differ. The standard path
-> reaches submission. The constrained twin loses its final route. Deterministic
-> code, not GPT, returns blocked: no reachable path.
+> reaches submission on a proven non-overlapping schedule for one person. The
+> constrained twin loses its final route. Deterministic code, not GPT, returns
+> blocked: no reachable path. If ordering were ambiguous, it would return
+> unknown instead of assuming parallel work.
 
 ### 1:43–2:03 — Inspect the exact failure
 
@@ -96,17 +103,19 @@ relevant cycle or unavailable channel.
 > alternate route remains. If the evidence were incomplete, the result would be
 > unknown instead of a guess.
 
-### 2:03–2:26 — Test the minimum repair set
+### 2:03–2:26 — Test the bounded repair set
 
-**Action:** Select **Test 3-change repair set**. Show AFTER `REACHABLE` and
-the BEFORE / AFTER comparison.
+**Action:** Keep the bundled default twin selected, choose **Test 3-change repair
+set**, then show AFTER `REACHABLE` and the BEFORE / AFTER comparison.
 
 **Narration:**
 
-> Now we test the minimum demo repair set: email verification, mobile upload,
+> Now we test the bundled demo repair set: email verification, mobile upload,
 > and evening review — three bounded alternatives applied together in memory.
-> AccessCrash does not edit a real program. The same deterministic engine
-> recomputes the same capability profile, and the path reopens.
+> AccessCrash does not edit a real program. For this default twin, the same
+> deterministic engine recomputes the same profile and the path reopens. If a
+> different selected constraint remained, the screen would keep the real
+> BLOCKED or UNKNOWN result instead of claiming success.
 
 ### 2:26–2:44 — Implementation proof and role split
 
@@ -141,10 +150,16 @@ Only show a check as passed if it succeeded on the exact recorded source state.
 - [ ] Pineglass Institute · Access Grant is called fictional and synthetic.
 - [ ] “No real student data” and “no persistence” are visible.
 - [ ] Live versus fallback mode is truthful and readable.
+- [ ] An exact bundled Pineglass live run shows that grounded GPT extraction was
+      deterministically normalized to the fixture topology; no general-source
+      normalization is implied.
 - [ ] GPT draft is visibly unconfirmed and source-cited.
-- [ ] Human confirmation is shown before deterministic evaluation.
+- [ ] Human confirmation as displayed is shown before deterministic evaluation,
+      and rejection/recompilation is visible without implying a graph editor.
 - [ ] Standard and capability-constrained profiles differ only in access
       conditions.
+- [ ] Any visible `REACHABLE` timing is a serialized, non-overlapping
+      single-person schedule; ambiguous ordering is described as `UNKNOWN`.
 - [ ] BEFORE `BLOCKED` and AFTER `REACHABLE` are visible.
 - [ ] Exact blocker and source rule are legible.
 - [ ] The three-alternative repair set is described as an in-memory synthetic
@@ -171,8 +186,13 @@ source-grounded process graph, requires human confirmation, and then uses
 deterministic code to prove whether a bounded capability profile can reach the
 outcome.
 
-GPT-5.6 compiles the draft. A human confirms it. Deterministic code decides
-REACHABLE, BLOCKED, or UNKNOWN.
+GPT-5.6 is the protected live compiler; when public live access is disabled,
+AccessCrash visibly uses its synthetic fallback instead. A human confirms the
+displayed graph, and deterministic code decides REACHABLE, BLOCKED, or UNKNOWN.
+
+For the exact bundled Pineglass live source, AccessCrash validates grounded GPT
+extraction and then visibly normalizes it to the documented fixture topology;
+general sources are not normalized.
 
 The Pineglass Institute · Access Grant demo is fictional, uses no real student data,
 and is not persisted by AccessCrash. The simulated three-alternative repair set

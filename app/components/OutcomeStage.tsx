@@ -32,8 +32,28 @@ type OutcomeStageProps = {
 
 function verdictCopy(verdict: OutcomeView["verdict"]) {
   if (verdict === "REACHABLE") return "Reachable path";
-  if (verdict === "UNKNOWN") return "Evidence incomplete";
+  if (verdict === "UNKNOWN") return "Result uncertain";
   return "No reachable path";
+}
+
+export function afterVerdictDetail(verdict: OutcomeView["afterVerdict"]) {
+  if (verdict === "REACHABLE") {
+    return "The tested repair set opens an executable route without changing the external synthetic assumption.";
+  }
+  if (verdict === "UNKNOWN") {
+    return "The tested repair set does not resolve all evidence, so deterministic code keeps the result UNKNOWN rather than claiming success.";
+  }
+  return "The tested repair set removes specific modeled barriers, but this capability profile still has no executable route.";
+}
+
+export function transitionTitle(
+  before: OutcomeView["verdict"],
+  after: OutcomeView["afterVerdict"],
+) {
+  if (before === "BLOCKED" && after === "REACHABLE") return "Recovery demonstrated";
+  if (before === "REACHABLE" && after === "BLOCKED") return "Regression detected";
+  if (before === after) return "Result unchanged";
+  return "Result changed";
 }
 
 function PathMap({ nodes }: { nodes: PathNodeView[] }) {
@@ -87,7 +107,7 @@ export function OutcomeStage({
         title="Eligibility is not access."
         description={
           outcome.verdict === "UNKNOWN"
-            ? "The confirmed graph is incomplete, so deterministic code returns UNKNOWN instead of inventing a path."
+            ? "The engine cannot prove REACHABLE or BLOCKED within its evidence and bounded-analysis rules, so it returns UNKNOWN instead of guessing."
             : outcome.verdict === standardVerdict
             ? "The engine found the same outcome for both capability twins and shows the evidence instead of forcing a crash."
             : "Under the same external synthetic eligibility assumption, the capability-constrained profile receives a different result because the process requires a capability it does not have."
@@ -115,7 +135,7 @@ export function OutcomeStage({
             <h2>{verdictCopy(verdict)}</h2>
             <p>
               {activeVersion === "after"
-                ? "The tested repair set opens an executable route without changing the external synthetic assumption."
+                ? afterVerdictDetail(outcome.afterVerdict)
                 : outcome.summary}
             </p>
           </div>
@@ -148,7 +168,7 @@ export function OutcomeStage({
         <div className="ac-map-toolbar">
           <div>
             <p className="ac-surface-kicker">Outcome map</p>
-            <strong>{activeVersion === "after" ? "After minimum repair set" : "Before change"}</strong>
+            <strong>{activeVersion === "after" ? "After tested repair set" : "Before change"}</strong>
           </div>
           <div className="ac-version-switch" aria-label="Process version" role="group">
             <button
@@ -176,7 +196,13 @@ export function OutcomeStage({
         <div className="ac-diagnosis-band">
           <div className="ac-diagnosis-icon" aria-hidden="true">
             {activeVersion === "after" ? (
-              <CheckCircle2 size={21} />
+              verdict === "REACHABLE" ? (
+                <CheckCircle2 size={21} />
+              ) : verdict === "UNKNOWN" ? (
+                <CircleAlert size={21} />
+              ) : (
+                <RouteOff size={21} />
+              )
             ) : (
               <ShieldCheck size={21} />
             )}
@@ -184,22 +210,34 @@ export function OutcomeStage({
           <div>
             <p className="ac-surface-kicker">
               {activeVersion === "after"
-                ? "Regression proof"
+                ? outcome.afterVerdict === "REACHABLE"
+                  ? "Recovery evidence"
+                  : outcome.afterVerdict === "UNKNOWN"
+                    ? "Unresolved after test"
+                    : "Remaining blockers"
                 : outcome.verdict === "BLOCKED"
                   ? "Exact blocker"
                   : outcome.verdict === "UNKNOWN"
-                    ? "Unresolved evidence"
+                    ? "Uncertainty requiring resolution"
                     : "Path proof"}
             </p>
             <h3>
-              {activeVersion === "after" ? outcome.repairTitle : outcome.diagnosisTitle}
+              {activeVersion === "after"
+                ? outcome.afterDiagnosisTitle
+                : outcome.diagnosisTitle}
             </h3>
             <p>
-              {activeVersion === "after" ? outcome.repairDetail : outcome.diagnosisDetail}
+              {activeVersion === "after"
+                ? outcome.afterDiagnosisDetail
+                : outcome.diagnosisDetail}
             </p>
             <span className="ac-citation ac-citation-compact">
               <Quote size={13} aria-hidden="true" />
-              <q>{outcome.diagnosisCitation}</q>
+              <q>
+                {activeVersion === "after"
+                  ? outcome.afterDiagnosisCitation
+                  : outcome.diagnosisCitation}
+              </q>
             </span>
           </div>
         </div>
@@ -211,7 +249,7 @@ export function OutcomeStage({
             </span>
             <div>
               <p className="ac-surface-kicker">
-                {outcome.repairAvailable ? "Minimum repair set" : "Human design boundary"}
+                {outcome.repairAvailable ? "Bounded repair set" : "Human design boundary"}
               </p>
               <strong>{outcome.repairTitle}</strong>
               <span>{outcome.repairDetail}</span>
@@ -229,8 +267,10 @@ export function OutcomeStage({
           <div className="ac-regression-strip" role="status">
             <GitCompareArrows size={20} aria-hidden="true" />
             <div>
-              <strong>Regression complete</strong>
-              <span>Blocked → reachable for Twin B; Twin A remains reachable.</span>
+              <strong>{transitionTitle(outcome.verdict, outcome.afterVerdict)}</strong>
+              <span>
+                Twin B: {outcome.verdict} → {outcome.afterVerdict}. Twin A baseline: {standardVerdict}.
+              </span>
             </div>
           </div>
         )}

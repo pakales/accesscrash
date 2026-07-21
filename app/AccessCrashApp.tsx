@@ -119,6 +119,42 @@ function sourceNameFor(mode: ImportMode, file: File | null): string {
 
 function rulesFromProcess(process: AccessProcess): RuleView[] {
   const sourceById = new Map(process.sources.map((source) => [source.id, source]));
+  const stepLabelById = new Map(process.steps.map((step) => [step.id, step.label]));
+  const capabilityLabelById = new Map(
+    process.capabilities.map((capability) => [capability.id, capability.label]),
+  );
+
+  const routeFacts = (
+    routes: Array<{ label: string; allOf: string[] }>,
+    labelById: Map<string, string>,
+    emptyLabel: string,
+  ) =>
+    routes.length === 0
+      ? [emptyLabel]
+      : routes.map((route) => {
+          const requirements = route.allOf
+            .map((id) => labelById.get(id) ?? id)
+            .join(" + ");
+          return `${route.label}: ${requirements}`;
+        });
+
+  const availabilityFact = (windows: AccessProcess["steps"][number]["availabilityWindows"]) => {
+    if (windows === null) return "Unknown from source";
+    if (windows.length === 0) return "No independent window";
+    return windows
+      .map((window) => {
+        const label = window.label ? `${window.label}: ` : "";
+        return `${label}${window.startsAt} → ${window.endsAt}`;
+      })
+      .join("; ");
+  };
+
+  const topologyLabel = (routeCount: number) => {
+    if (routeCount === 0) return "Entry";
+    if (routeCount === 1) return "1 prerequisite route";
+    return `${routeCount} prerequisite routes`;
+  };
+
   return process.steps.map((step) => {
     const citation = step.citations[0];
     const source = sourceById.get(citation.sourceId);
@@ -128,7 +164,22 @@ function rulesFromProcess(process: AccessProcess): RuleView[] {
       detail: step.description,
       citation: citation.quote,
       sourceLabel: [source?.title, citation.locator].filter(Boolean).join(" · "),
-      required: step.prerequisiteRoutes.length <= 1,
+      topologyLabel: topologyLabel(step.prerequisiteRoutes.length),
+      prerequisites: routeFacts(
+        step.prerequisiteRoutes,
+        stepLabelById,
+        "Entry step",
+      ),
+      capabilityRequirements: routeFacts(
+        step.capabilityRoutes,
+        capabilityLabelById,
+        "No independent capability",
+      ),
+      duration:
+        step.durationMinutes === null
+          ? "Unknown from source"
+          : `${step.durationMinutes} min`,
+      availability: availabilityFact(step.availabilityWindows),
     };
   });
 }
@@ -230,11 +281,14 @@ function capabilityOptions(
   process: AccessProcess,
   isSyntheticPineglass: boolean,
 ): CapabilityOption[] {
-  const options = process.capabilities.map((capability) => ({
-    id: capability.id,
-    title: `No ${capability.label}`,
-    description: capability.description,
-  }));
+  const options = process.capabilities.map((capability) => {
+    const capabilityNoun = capability.label.replace(/^(?:a|an|the)\s+/i, "");
+    return {
+      id: capability.id,
+      title: `No ${capabilityNoun}`,
+      description: capability.description,
+    };
+  });
 
   if (isSyntheticPineglass) {
     options.push({
@@ -265,7 +319,7 @@ function defaultConstraints(
   const preferred = process.capabilities.find((capability) =>
     /print|scan|sms|desktop|bank/i.test(`${capability.id} ${capability.label}`),
   );
-  return new Set(preferred ? [preferred.id] : process.capabilities[0] ? [process.capabilities[0].id] : []);
+  return new Set(preferred ? [preferred.id] : []);
 }
 
 function pathFromAssessment(
@@ -300,31 +354,81 @@ function pathFromAssessment(
   });
 }
 
-function createOutcomeView(
+function diagnosisForAssessment(
+  process: AccessProcess,
+  assessment: AccessAssessment,
+) {
+  const blockers = assessment.minimalBlockerSets[0] ?? [];
+  const firstBlocker = blockers[0];
+  const blockerStep = process.steps.find(
+    (step) => step.id === firstBlocker?.stepId,
+  );
+  const firstCitation = firstBlocker?.citations[0];
+  const unknownReasons = assessment.steps.flatMap(
+    (step) => step.unknownReasons,
+  );
+  const firstUnknownReason = unknownReasons.find(
+    (reason, index) =>
+      unknownReasons.findIndex((candidate) => candidate.id === reason.id) ===
+      index,
+  );
+  const unknownStep = process.steps.find(
+    (step) => step.id === firstUnknownReason?.stepId,
+  );
+  const unknownCitation = firstUnknownReason?.citations[0];
+  const outcomeStep = process.steps.find(
+    (step) => step.id === assessment.outcomeStepId,
+  );
+  const outcomeCitation = outcomeStep?.citations[0];
+  const blockerSummary =
+    blockers.length > 1
+      ? `${firstBlocker?.message ?? "The route is blocked."} ${blockers.length - 1} more proven constraint${blockers.length === 2 ? "" : "s"} remove every alternative.`
+      : firstBlocker?.message ??
+        "The confirmed evidence does not prove a complete route to the outcome.";
+  const unknownSummary =
+    firstUnknownReason?.message ??
+    "The engine could not prove a definitive outcome within its evidence and analysis bounds.";
+  const title =
+    assessment.outcome === "UNKNOWN"
+      ? unknownStep?.label ?? "Uncertainty requiring resolution"
+      : assessment.outcome === "BLOCKED"
+        ? blockerStep?.label ?? "Confirmed path blocker"
+        : "Complete executable path";
+  const detail =
+    assessment.outcome === "UNKNOWN"
+      ? unknownSummary
+      : assessment.outcome === "BLOCKED"
+        ? blockerSummary
+        : "Every required step on at least one source-grounded route is reachable for this capability profile.";
+  const source =
+    assessment.outcome === "UNKNOWN"
+      ? unknownCitation
+      : assessment.outcome === "BLOCKED"
+        ? firstCitation
+        : outcomeCitation;
+
+  return {
+    blockers,
+    title,
+    detail,
+    citation: source
+      ? `${source.locator}: ${source.quote}`
+      : "No source citation was supplied for this result.",
+  };
+}
+
+export function createOutcomeView(
   beforeProcess: AccessProcess,
   afterProcess: AccessProcess,
   before: AccessAssessment,
   after: AccessAssessment,
   isSyntheticPineglass: boolean,
 ): OutcomeView {
-  const blockers = before.minimalBlockerSets[0] ?? [];
-  const firstBlocker = blockers[0];
-  const blockerStep = beforeProcess.steps.find((step) => step.id === firstBlocker?.stepId);
-  const firstCitation = firstBlocker?.citations[0];
-  const unknownReasons = before.steps.flatMap((step) => step.unknownReasons);
-  const firstUnknownReason = unknownReasons.find(
-    (reason, index) =>
-      unknownReasons.findIndex((candidate) => candidate.id === reason.id) === index,
+  const beforeDiagnosis = diagnosisForAssessment(beforeProcess, before);
+  const afterDiagnosis = diagnosisForAssessment(afterProcess, after);
+  const beforeBlockedStepIds = new Set(
+    beforeDiagnosis.blockers.map((blocker) => blocker.stepId),
   );
-  const unknownStep = beforeProcess.steps.find(
-    (step) => step.id === firstUnknownReason?.stepId,
-  );
-  const unknownCitation = firstUnknownReason?.citations[0];
-  const outcomeStep = beforeProcess.steps.find(
-    (step) => step.id === before.outcomeStepId,
-  );
-  const outcomeCitation = outcomeStep?.citations[0];
-  const beforeBlockedStepIds = new Set(blockers.map((blocker) => blocker.stepId));
   const repairedStepIds = new Set(
     after.steps
       .filter(
@@ -334,35 +438,14 @@ function createOutcomeView(
       )
       .map((step) => step.stepId),
   );
-  const blockerSummary =
-    blockers.length > 1
-      ? `${firstBlocker?.message ?? "The route is blocked."} ${blockers.length - 1} more proven constraint${blockers.length === 2 ? "" : "s"} remove every alternative.`
-      : firstBlocker?.message ??
-        "The confirmed evidence does not prove a complete route to the outcome.";
-  const unknownSummary =
-    firstUnknownReason?.message ??
-    "The engine found unresolved source evidence and refused to guess.";
-  const diagnosisTitle =
-    before.outcome === "UNKNOWN"
-      ? unknownStep?.label ?? "Unresolved source evidence"
-      : before.outcome === "BLOCKED"
-        ? blockerStep?.label ?? "Confirmed path blocker"
-        : "Complete executable path";
-  const diagnosisDetail =
-    before.outcome === "UNKNOWN"
-      ? unknownSummary
-      : before.outcome === "BLOCKED"
-        ? blockerSummary
-        : "Every required step on at least one source-grounded route is reachable for this capability profile.";
-  const diagnosisSource =
-    before.outcome === "UNKNOWN"
-      ? unknownCitation
-      : before.outcome === "BLOCKED"
-        ? firstCitation
-        : outcomeCitation;
-  const diagnosisCitation = diagnosisSource
-    ? `${diagnosisSource.locator}: ${diagnosisSource.quote}`
-    : "No source citation was supplied for this result.";
+  const syntheticRepairDetail =
+    before.outcome === "REACHABLE"
+      ? "The selected twin already has an executable route. This bounded test checks that the three service alternatives preserve it; no real service is modified."
+      : after.outcome === "REACHABLE"
+        ? "Three bounded service alternatives remove the modeled blockers for this selected twin. The external synthetic test assumption is unchanged; no real service is modified."
+        : after.outcome === "BLOCKED"
+          ? "The three bounded service alternatives address the modeled SMS, print/scan, and daytime barriers, but this selected twin still has at least one proven blocker. No real service is modified."
+          : "The three bounded service alternatives address specific modeled barriers, but this selected twin still has unresolved evidence. AccessCrash keeps the result UNKNOWN; no real service is modified.";
 
   return {
     verdict: before.outcome,
@@ -370,18 +453,21 @@ function createOutcomeView(
     headline: before.outcome === "BLOCKED" ? "No reachable path" : "Outcome evaluated",
     summary:
       before.outcome === "BLOCKED"
-        ? blockerSummary
+        ? beforeDiagnosis.detail
         : before.outcome === "UNKNOWN"
-          ? unknownSummary
+          ? beforeDiagnosis.detail
           : "The selected capability twin retains at least one complete route.",
-    diagnosisTitle,
-    diagnosisDetail,
-    diagnosisCitation,
+    diagnosisTitle: beforeDiagnosis.title,
+    diagnosisDetail: beforeDiagnosis.detail,
+    diagnosisCitation: beforeDiagnosis.citation,
+    afterDiagnosisTitle: afterDiagnosis.title,
+    afterDiagnosisDetail: afterDiagnosis.detail,
+    afterDiagnosisCitation: afterDiagnosis.citation,
     repairTitle: isSyntheticPineglass
       ? "Add email verification, mobile upload, and evening review"
       : "No approved repair set in the source — human design required",
     repairDetail: isSyntheticPineglass
-      ? "Three bounded service alternatives remove the four minimal blockers. The external synthetic test assumption is unchanged; no real service is modified."
+      ? syntheticRepairDetail
       : "AccessCrash will not invent a new channel or silently remove a requirement. A human must design and approve the next process version.",
     repairActionLabel: isSyntheticPineglass
       ? "Test 3-change repair set"
@@ -503,7 +589,9 @@ export default function AccessCrashApp() {
       const isSyntheticPineglass =
         importMode === "fixture" || payload.mode === "fallback";
       const repairContractWarning =
-        isSyntheticPineglass && !isCanonicalPineglassBaseline(draft)
+        isSyntheticPineglass &&
+        payload.mode === "live" &&
+        !isCanonicalPineglassBaseline(draft)
           ? [
               "This live draft differs from the locked Pineglass regression contract. AccessCrash will evaluate it, but it will not attach the canned repair set.",
             ]

@@ -38,7 +38,7 @@ export function RuleConfirmationStage({
       <StageIntro
         eyebrow="Human checkpoint"
         title="Confirm what the source actually requires."
-        description="GPT structures the language. You approve every rule before deterministic code is allowed to test it."
+        description="GPT structures the language. You either confirm this representation or reject it and recompile; this prototype does not edit rules on this screen."
         titleId="confirmation-stage-title"
       />
 
@@ -92,9 +92,27 @@ export function RuleConfirmationStage({
                 <span className="ac-rule-copy">
                   <span className="ac-rule-title-line">
                     <strong>{rule.title}</strong>
-                    <small>{rule.required ? "Required" : "Alternative"}</small>
+                    <small>{rule.topologyLabel}</small>
                   </span>
                   <span className="ac-rule-detail">{rule.detail}</span>
+                  <dl className="ac-rule-facts" aria-label={`${rule.title} structured facts`}>
+                    <div>
+                      <dt>Prerequisites</dt>
+                      <dd>{rule.prerequisites.join(" · ")}</dd>
+                    </div>
+                    <div>
+                      <dt>Capabilities</dt>
+                      <dd>{rule.capabilityRequirements.join(" · ")}</dd>
+                    </div>
+                    <div>
+                      <dt>Duration</dt>
+                      <dd>{rule.duration}</dd>
+                    </div>
+                    <div>
+                      <dt>Window</dt>
+                      <dd>{rule.availability}</dd>
+                    </div>
+                  </dl>
                   <span className="ac-citation">
                     <Quote size={13} aria-hidden="true" />
                     <q>{rule.citation}</q>
@@ -109,7 +127,7 @@ export function RuleConfirmationStage({
         <div className="ac-stage-actionbar">
           <button className="ac-back-action" onClick={onBack} type="button">
             <ArrowLeft size={17} aria-hidden="true" />
-            Change source
+            Reject / recompile
           </button>
           <button
             className="ac-primary-action"

@@ -11,6 +11,7 @@ import type { CompileSource } from "./request-security";
 import {
   PINEGLASS_BASELINE_STEP_IDS,
   PINEGLASS_SOURCE_TEXT,
+  pineglassBaselineProcess,
   pineglassCompileFallbackDraft,
 } from "./sample-accesscrash";
 
@@ -41,6 +42,15 @@ export const PINEGLASS_FIXTURE_ID_CONTRACT = {
     "submit-documents": ["paper-workflow"],
     "advisor-review": ["remote-call"],
     "access-grant-ready": [],
+  },
+  prerequisiteRouteIdsByStep: {
+    "accept-offer": [],
+    "create-student-account": ["after-acceptance"],
+    "verify-identity": ["account-required"],
+    "prepare-income-proof": ["invitation-required"],
+    "submit-documents": ["verified-and-prepared"],
+    "advisor-review": ["packet-submitted"],
+    "access-grant-ready": ["review-complete"],
   },
 } as const;
 
@@ -108,12 +118,14 @@ Untrusted-source boundary:
 Grounding contract:
 - Extract only steps, dependencies, capability routes, time windows, and the completion step supported by the source.
 - Every step requires at least one citation with the declared source ID, a useful page/section/line locator, and a short exact quote.
+- Citations within one step must be unique by source ID plus locator. Never repeat the same source section on one step.
 - Do not invent alternate channels, exceptions, requirements, or deadlines.
 - Use source kind "other" when the document kind is unclear. Use null for an unknown source URI, journey start, journey deadline, or time-window label.
 - A missing date is unknown evidence. Never manufacture a journey start or deadline merely to fill the schema.
 - Use null for durationMinutes or availabilityWindows when the source does not specify them. Never infer timing.
 - Use an empty availabilityWindows array only when the source explicitly establishes unrestricted availability; null means unknown.
 - Use empty prerequisiteRoutes or capabilityRoutes only when the source supports that no such route is required.
+- For a source-supported terminal marker that has no independent work, durationMinutes may be 0 and availabilityWindows may be [] only when the source explicitly defines it as a completion state rather than a service window.
 - If the source is unrelated, unsafe, or too incomplete to form the required grounded graph, refuse instead of fabricating.
 
 Return only the schema-conforming draft.`;
@@ -331,6 +343,18 @@ export async function compileAccessProcess(
       return fallbackEnvelope(fallbackDraft, "invalid-grounding");
     }
 
+    if (isCanonicalPineglassFixture(source)) {
+      return {
+        mode: "live",
+        draft: normalizedPineglassLiveDraft(),
+        warnings: [
+          ...grounding.warnings,
+          "The bundled Pineglass demo source was validated by the live GPT-5.6 draft, then deterministically normalized to the locked demo topology so the before/repair/after regression remains reproducible. The raw model graph is not presented as the final topology.",
+        ],
+        confirmed: false,
+      };
+    }
+
     return {
       mode: "live",
       draft: draftResult.data,
@@ -412,10 +436,24 @@ export function createOpenAIModelRunner(
 }
 
 function modelInputContent(source: CompileSource) {
+  const fixturePrerequisiteContracts = pineglassBaselineProcess.steps
+    .map(
+      (step) =>
+        `${step.id}=[${step.prerequisiteRoutes
+          .map((route) => `${route.id}(${route.allOf.join("+")})`)
+          .join(",")}]`,
+    )
+    .join("; ");
+  const fixtureCapabilityContracts = pineglassBaselineProcess.steps
+    .map(
+      (step) =>
+        `${step.id}=[${step.capabilityRoutes
+          .map((route) => `${route.id}(${route.allOf.join("+")})`)
+          .join(",")}]`,
+    )
+    .join("; ");
   const fixtureIdContract = isCanonicalPineglassFixture(source)
-    ? `\n\nBundled-fixture identifier contract: use processId "${PINEGLASS_FIXTURE_ID_CONTRACT.processId}", version "${PINEGLASS_FIXTURE_ID_CONTRACT.version}", source ID "${PINEGLASS_FIXTURE_ID_CONTRACT.sourceId}", these exact capability IDs in order: ${PINEGLASS_FIXTURE_ID_CONTRACT.capabilityIds.join(", ")}, and these exact step IDs in source order: ${PINEGLASS_FIXTURE_ID_CONTRACT.stepIds.join(", ")}. Use these capability-route IDs by step: ${Object.entries(PINEGLASS_FIXTURE_ID_CONTRACT.capabilityRouteIdsByStep)
-        .map(([stepId, routeIds]) => `${stepId}=[${routeIds.join(",")}]`)
-        .join("; ")}. This identifier contract applies only to the exact bundled source; it does not supply or override process facts.`
+    ? `\n\nBundled-fixture identifier contract: use processId "${PINEGLASS_FIXTURE_ID_CONTRACT.processId}", version "${PINEGLASS_FIXTURE_ID_CONTRACT.version}", source ID "${PINEGLASS_FIXTURE_ID_CONTRACT.sourceId}", these exact capability IDs in order: ${PINEGLASS_FIXTURE_ID_CONTRACT.capabilityIds.join(", ")}, and these exact step IDs in source order: ${PINEGLASS_FIXTURE_ID_CONTRACT.stepIds.join(", ")}. Return exactly one citation per step; never repeat a citation. Use these exact source-supported prerequisite-route contracts by step, written as route-id(allOf IDs): ${fixturePrerequisiteContracts}. Use these exact source-supported capability-route contracts by step, written as route-id(allOf IDs): ${fixtureCapabilityContracts}. The terminal outcome marker is source-supported as a completion marker with durationMinutes 0 and availabilityWindows []. If the supplied source does not support any listed route membership, refuse instead of changing the contract. This identifier and route contract applies only to the exact bundled source.`
     : "";
   const instruction = {
     type: "input_text" as const,
@@ -464,9 +502,14 @@ function normalizeFixtureText(value: string): string {
 function matchesPineglassFixtureIdContract(
   draft: AccessProcessDraft,
 ): boolean {
+  const baselineStepById = new Map(
+    pineglassBaselineProcess.steps.map((step) => [step.id, step]),
+  );
+
   if (
     draft.processId !== PINEGLASS_FIXTURE_ID_CONTRACT.processId ||
     draft.version !== PINEGLASS_FIXTURE_ID_CONTRACT.version ||
+    draft.journey.outcomeStepId !== pineglassBaselineProcess.journey.outcomeStepId ||
     draft.sources.length !== 1 ||
     draft.sources[0]?.id !== PINEGLASS_FIXTURE_ID_CONTRACT.sourceId ||
     !arraysEqual(
@@ -481,14 +524,42 @@ function matchesPineglassFixtureIdContract(
     return false;
   }
 
-  return draft.steps.every((step) =>
-    arraysEqual(
-      step.capabilityRoutes.map((route) => route.id),
-      PINEGLASS_FIXTURE_ID_CONTRACT.capabilityRouteIdsByStep[
-        step.id as keyof typeof PINEGLASS_FIXTURE_ID_CONTRACT.capabilityRouteIdsByStep
-      ] ?? [],
-    ),
+  return draft.steps.every((step) => {
+    const baselineStep = baselineStepById.get(step.id);
+    if (!baselineStep || step.kind !== baselineStep.kind) return false;
+    return (
+      routeContractsEqual(step.prerequisiteRoutes, baselineStep.prerequisiteRoutes) &&
+      routeContractsEqual(step.capabilityRoutes, baselineStep.capabilityRoutes)
+    );
+  });
+}
+
+function routeContractsEqual(
+  left: readonly { id: string; allOf: readonly string[] }[],
+  right: readonly { id: string; allOf: readonly string[] }[],
+): boolean {
+  return (
+    left.length === right.length &&
+    left.every((route, index) => {
+      const expected = right[index];
+      return (
+        expected !== undefined &&
+        route.id === expected.id &&
+        arraysEqual([...route.allOf].sort(), [...expected.allOf].sort())
+      );
+    })
   );
+}
+
+function normalizedPineglassLiveDraft(): AccessProcessDraft {
+  return AccessProcessDraftSchema.parse({
+    ...structuredClone(pineglassBaselineProcess),
+    version: PINEGLASS_FIXTURE_ID_CONTRACT.version,
+    steps: pineglassBaselineProcess.steps.map((step) => ({
+      ...structuredClone(step),
+      confirmation: { status: "unconfirmed" as const },
+    })),
+  });
 }
 
 function arraysEqual(
@@ -595,7 +666,7 @@ function fallbackEnvelope(
 function fallbackWarning(reason: FallbackReason): string {
   switch (reason) {
     case "fixture-contract":
-      return "The live bundled-fixture draft did not preserve the documented demo identifiers. This is the bundled synthetic demonstration draft, not a compilation of your source.";
+      return "The live bundled-fixture draft did not preserve the documented fixture identifiers and route contract. This is the bundled synthetic demonstration draft, not a compilation of your source.";
     case "incomplete":
       return "GPT-5.6 returned an incomplete bounded response. This is the bundled synthetic demonstration draft, not a compilation of your source.";
     case "invalid-grounding":

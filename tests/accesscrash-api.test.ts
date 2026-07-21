@@ -314,6 +314,15 @@ test("fixture-only IDs are hinted only for the exact canonical Pineglass source"
   for (const capabilityId of PINEGLASS_FIXTURE_ID_CONTRACT.capabilityIds) {
     assert.match(canonicalInstruction, new RegExp(capabilityId));
   }
+  assert.match(canonicalInstruction, /exactly one citation per step/i);
+  assert.match(canonicalInstruction, /never repeat a citation/i);
+  for (const routeIds of Object.values(
+    PINEGLASS_FIXTURE_ID_CONTRACT.prerequisiteRouteIdsByStep,
+  )) {
+    for (const routeId of routeIds) {
+      assert.match(canonicalInstruction, new RegExp(routeId));
+    }
+  }
   for (const routeIds of Object.values(
     PINEGLASS_FIXTURE_ID_CONTRACT.capabilityRouteIdsByStep,
   )) {
@@ -321,21 +330,49 @@ test("fixture-only IDs are hinted only for the exact canonical Pineglass source"
       assert.match(canonicalInstruction, new RegExp(routeId));
     }
   }
+  assert.match(canonicalInstruction, /route-id\(allOf IDs\)/i);
+  assert.match(canonicalInstruction, /paper-workflow\(printer\+scanner\)/i);
+  assert.match(canonicalInstruction, /after-acceptance\(accept-offer\)/i);
   assert.doesNotMatch(genericInstruction, /Bundled-fixture identifier contract/);
 });
 
-test("exact Pineglass live drafts must preserve the UI repair-gate IDs", async () => {
+test("exact Pineglass live drafts are validated then normalized to the repair demo topology", async () => {
   const source: CompileSource = {
     kind: "text",
     sourceName: "Pineglass Institute · Access Grant",
     sourceText: PINEGLASS_SOURCE_TEXT,
   };
   const canonicalDraft = canonicalPineglassLiveDraft();
+  canonicalDraft.steps[0]!.label = "Model phrased this differently";
+  canonicalDraft.steps[0]!.durationMinutes = null;
+  canonicalDraft.steps[0]!.availabilityWindows = null;
 
   const accepted = await compileAccessProcess(source, {
     modelRunner: async () => ({ kind: "draft", draft: canonicalDraft }),
   });
   assert.equal(accepted.mode, "live");
+  assert.match(accepted.warnings.join(" "), /deterministically normalized/i);
+  assert.equal(accepted.draft.version, PINEGLASS_FIXTURE_ID_CONTRACT.version);
+  assert.deepEqual(
+    accepted.draft.steps.map((step) => ({
+      id: step.id,
+      label: step.label,
+      durationMinutes: step.durationMinutes,
+      availabilityWindows: step.availabilityWindows,
+      prerequisiteRoutes: step.prerequisiteRoutes.map((route) => route.id),
+      capabilityRoutes: step.capabilityRoutes.map((route) => route.id),
+      confirmation: step.confirmation.status,
+    })),
+    pineglassCompileFallbackDraft.steps.map((step) => ({
+      id: step.id,
+      label: step.label,
+      durationMinutes: step.durationMinutes,
+      availabilityWindows: step.availabilityWindows,
+      prerequisiteRoutes: step.prerequisiteRoutes.map((route) => route.id),
+      capabilityRoutes: step.capabilityRoutes.map((route) => route.id),
+      confirmation: "unconfirmed",
+    })),
+  );
 
   const mismatchedDraft = canonicalPineglassLiveDraft();
   mismatchedDraft.steps[0]!.capabilityRoutes[0]!.id = "different-route";
@@ -343,7 +380,18 @@ test("exact Pineglass live drafts must preserve the UI repair-gate IDs", async (
     modelRunner: async () => ({ kind: "draft", draft: mismatchedDraft }),
   });
   assert.equal(rejected.mode, "fallback");
-  assert.match(rejected.warnings[0]!, /demo identifiers/i);
+  assert.match(rejected.warnings[0]!, /fixture identifiers and route contract/i);
+
+  const wrongMembershipDraft = canonicalPineglassLiveDraft();
+  wrongMembershipDraft.steps[4]!.capabilityRoutes[0]!.allOf = ["mobile-upload"];
+  const wrongMembership = await compileAccessProcess(source, {
+    modelRunner: async () => ({ kind: "draft", draft: wrongMembershipDraft }),
+  });
+  assert.equal(wrongMembership.mode, "fallback");
+  assert.match(
+    wrongMembership.warnings[0]!,
+    /fixture identifiers and route contract/i,
+  );
 });
 
 test("compiler prompt treats source content as data and excludes model authority", () => {

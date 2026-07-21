@@ -39,25 +39,34 @@ that AccessCrash improves outcomes without future field evaluation.
    choose one bounded PDF, TXT, or Markdown source.
 2. **Compile the access path** — `POST /api/compile` asks GPT-5.6 to extract a
    strict graph whose rules retain inspectable source citations. The result is
-   always a draft and contains no verdict.
-3. **Confirm the rules** — a human reviews and confirms or corrects every rule.
-   Unresolved evidence stays unresolved.
+   always a draft and contains no verdict. For the exact bundled Pineglass
+   source only, a grounded, validated live extraction is then deterministically
+   normalized to the documented fixture topology with a visible warning;
+   general sources keep their validated model-produced topology.
+3. **Confirm or reject the rules** — a human inspects the displayed draft and
+   either confirms it as-is or rejects it and recompiles. V1 does not provide a
+   graph editor, so confirmation never implies that AccessCrash corrected a
+   rule. The review exposes each rule's prerequisites, capability routes,
+   duration, availability, and citation. Unresolved evidence stays unresolved.
 4. **Run the crash test** — a pure deterministic engine compares a standard
-   profile with a capability-constrained twin. Only access conditions differ.
+   profile with a capability twin. Only selected access conditions differ;
+   selecting none is an explicit control comparison, including for a process
+   that declares no capability requirements.
 5. **Inspect the proof** — AccessCrash returns `REACHABLE`, `BLOCKED`, or
    `UNKNOWN`, together with the valid path, exact blocker, cycle, or missing
    evidence that produced it.
-6. **Test the minimum repair set** — the demo adds three bounded in-memory
-   alternatives together: email verification, mobile upload, and evening
-   review. It recomputes the graph but does not modify a real service or source
-   document.
+6. **Test the bounded repair set** — for the bundled default constrained twin,
+   the demo adds three in-memory alternatives together: email verification,
+   mobile upload, and evening review. The same engine recomputes the actual
+   result; extra selected constraints may remain blocked or unknown. No real
+   service or source document is modified.
 
 ## What each system is allowed to do
 
 | System | Role |
 | --- | --- |
 | GPT-5.6 | Compile supplied instructions into a cited, unconfirmed process draft and surface ambiguity |
-| Human reviewer | Confirm or correct the graph before any authoritative test |
+| Human reviewer | Inspect and either confirm the displayed graph or reject it and recompile before any authoritative test |
 | Deterministic engine | Compute reachability, cycles, blockers, and regression results |
 | Codex | Help design, implement, audit, test, and document AccessCrash |
 
@@ -73,13 +82,19 @@ the interpretation.
 
 ## Verdict contract
 
+- The declared outcome must reference a step whose `kind` is `outcome`, and
+  every declared step must be recursively connected into that outcome's
+  dependency closure. Schema validation rejects orphan or unrelated steps.
 - `REACHABLE` — the confirmed graph proves at least one valid route through its
   entry conditions to the declared outcome step for the selected capability
   profile.
 - `BLOCKED` — the confirmed graph proves no valid completion path and identifies
   graph-grounded blockers.
-- `UNKNOWN` — an unconfirmed step, unknown capability, or unresolved timing or
-  dependency prevents either proof. A schema-invalid graph is rejected instead.
+- `UNKNOWN` — any unconfirmed declared step, unknown capability, unresolved
+  timing/dependency, unprovable non-overlapping schedule, or bounded
+  exact-analysis limit prevents either proof. An unconfirmed declared step
+  remains authoritative uncertainty even when one candidate route does not use
+  it. A schema-invalid graph is rejected instead.
 
 A `REACHABLE` result is not proof that every real person can complete the
 process. It is true only for the supplied, confirmed graph and selected
@@ -88,6 +103,24 @@ synthetic profile.
 The capability-twin comparison holds eligibility constant only as an external
 synthetic test assumption. AccessCrash does not verify eligibility or receive
 applicant eligibility data.
+
+Report creation re-evaluates the exact supplied process and profile and rejects
+a stale or forged assessment whose complete deterministic result does not match;
+matching IDs or versions is not enough. Version comparisons likewise require
+the same declared outcome and identical declared capability-ID vocabulary, and
+expose blocker/unknown-reason IDs plus canonical assessment-evidence
+fingerprints before and after. Changed blocker content, uncertainty, path, or
+timing therefore cannot hide behind an unchanged verdict label. One comparison
+accepts at most 64 profiles.
+
+For a single-person profile, `REACHABLE` also requires a proven serialized
+schedule: selected steps may not overlap and must fit their declared windows and
+deadline. If bounded evidence cannot prove one non-overlapping order or rule out
+another, AccessCrash returns `UNKNOWN` rather than assuming parallel work or
+declaring a false block. `allOf` is treated as unordered conjunction and
+canonicalized; cycle evidence uses a canonical representative. Deterministic
+aggregate work budgets bound exact analysis and fail fast to
+`analysis-limit` `UNKNOWN` instead of emitting a partial confident result.
 
 ## Honest boundaries
 
@@ -217,6 +250,14 @@ baseline constrained twin `BLOCKED`, repaired constrained twin `REACHABLE`,
 regressed constrained twin `BLOCKED`, and repaired unknown-capability profile
 `UNKNOWN`.
 
+When—and only when—the submitted source name and normalized source text exactly
+match the bundled Pineglass case, the live path still calls GPT-5.6 for grounded
+source extraction and validation, then deterministically normalizes the draft to
+the documented Pineglass fixture topology. The response carries a visible
+warning so reproducible demo IDs and repair comparisons are not mistaken for a
+topology independently authored by the model. Other sources are not normalized
+to Pineglass or to any fixture topology.
+
 The route rejects cross-origin browser requests using `Origin` and
 `Sec-Fetch-Site` when supplied, enforces allowed content types and bounded
 input, and uses strict output validation plus exact model `gpt-5.6-sol` with
@@ -224,8 +265,9 @@ low reasoning and low text verbosity, an explicit timeout, zero automatic
 retries, and `store: false`. One accepted request triggers at most one model
 call with a 10,000-token output cap and a 60-second timeout. A disabled
 production live gate, incomplete response, refusal, timeout, API failure,
-fixture-contract drift, or schema-invalid output produces an explicitly labeled
-synthetic fallback rather than a fabricated live result.
+exact-Pineglass identifier/route-contract drift, or schema-invalid output
+produces an explicitly labeled synthetic fallback rather than a fabricated live
+result.
 Validation errors use the stable `{ "error": { "code", "message" } }`
 envelope. See
 [`docs/THREAT-MODEL.md`](docs/THREAT-MODEL.md).

@@ -8,9 +8,10 @@ import {
   type CapabilityProfile,
   type SourceCitation,
 } from "./accesscrash-schema";
+import { evaluateProcess } from "./accesscrash-engine";
 
 export const ACCESSCRASH_REPORT_DISCLAIMER =
-  "This result covers only the confirmed, supplied process and synthetic capability profile. It is not an eligibility decision, legal or accessibility certification, population-impact estimate, or substitute for research with real users.";
+  "This result covers only the supplied process and synthetic capability profile. REACHABLE or BLOCKED requires a fully confirmed graph; UNKNOWN may reflect unresolved evidence or bounded analysis. It is not an eligibility decision, legal or accessibility certification, population-impact estimate, or substitute for research with real users.";
 
 export type AccessCrashReportCitation = SourceCitation & {
   sourceTitle: string;
@@ -60,6 +61,39 @@ function bindCitations(
   }));
 }
 
+function deeplyEqual(left: unknown, right: unknown): boolean {
+  if (Object.is(left, right)) return true;
+  if (Array.isArray(left) || Array.isArray(right)) {
+    return (
+      Array.isArray(left) &&
+      Array.isArray(right) &&
+      left.length === right.length &&
+      left.every((value, index) => deeplyEqual(value, right[index]))
+    );
+  }
+  if (
+    left === null ||
+    right === null ||
+    typeof left !== "object" ||
+    typeof right !== "object"
+  ) {
+    return false;
+  }
+
+  const leftObject = left as Record<string, unknown>;
+  const rightObject = right as Record<string, unknown>;
+  const leftKeys = Object.keys(leftObject).sort();
+  const rightKeys = Object.keys(rightObject).sort();
+  return (
+    leftKeys.length === rightKeys.length &&
+    leftKeys.every(
+      (key, index) =>
+        key === rightKeys[index] &&
+        deeplyEqual(leftObject[key], rightObject[key]),
+    )
+  );
+}
+
 export function createAccessCrashReport(
   processInput: AccessProcess,
   profileInput: CapabilityProfile,
@@ -78,6 +112,18 @@ export function createAccessCrashReport(
       "The assessment must belong to the supplied process version and profile.",
     );
   }
+  if (assessment.outcomeStepId !== process.journey.outcomeStepId) {
+    throw new Error(
+      "The assessment must evaluate the process's declared outcome step.",
+    );
+  }
+
+  const currentAssessment = evaluateProcess(process, profile);
+  if (!deeplyEqual(assessment, currentAssessment)) {
+    throw new Error(
+      "The assessment is stale or does not match the current deterministic evaluation.",
+    );
+  }
 
   const stepById = new Map(process.steps.map((step) => [step.id, step] as const));
   const assessmentByStepId = new Map(
@@ -94,14 +140,14 @@ export function createAccessCrashReport(
       ? "A confirmed path reaches the published outcome"
       : assessment.outcome === "BLOCKED"
         ? `${minimumBlockerSet.length} confirmed blocker${minimumBlockerSet.length === 1 ? "" : "s"} prevent the outcome`
-        : "The supplied evidence is not established enough for a verdict";
+        : "The engine cannot prove either definitive outcome within its evidence and analysis bounds";
 
   const summary =
     assessment.outcome === "REACHABLE"
       ? `${profile.label} can complete the confirmed ${process.title} path by ${assessment.earliestCompletionAt ?? "the published deadline"}.`
       : assessment.outcome === "BLOCKED"
         ? `No confirmed route reaches the outcome for ${profile.label}. The smallest known blocker set contains ${minimumBlockerSet.length} item${minimumBlockerSet.length === 1 ? "" : "s"}.`
-        : `${uniqueUnknownReasons.length} unresolved evidence item${uniqueUnknownReasons.length === 1 ? "" : "s"} must be confirmed before AccessCrash can return REACHABLE or BLOCKED.`;
+        : `${uniqueUnknownReasons.length} uncertainty item${uniqueUnknownReasons.length === 1 ? "" : "s"} must be resolved before AccessCrash can return REACHABLE or BLOCKED. The item may require source confirmation, a provable schedule, or narrower bounded analysis.`;
 
   return {
     title: `${process.title} · ${profile.label}`,
@@ -177,7 +223,7 @@ export function renderAccessCrashReportMarkdown(report: AccessCrashReport): stri
   }
 
   if (report.unknowns.length > 0) {
-    lines.push("## Evidence requiring confirmation", "");
+    lines.push("## Uncertainty requiring resolution", "");
     for (const item of report.unknowns) {
       lines.push(`- **${item.stepLabel}:** ${item.message}`);
       for (const citation of item.citations) {

@@ -14,8 +14,12 @@ AccessCrash answers one narrow question for an education application process:
 The product loop is intentionally split:
 
 1. GPT-5.6 compiles supplied process instructions into a source-grounded draft
-   graph.
-2. A human reviews and confirms or corrects that draft.
+   graph. For the exact bundled Pineglass source only, validated live extraction
+   is then deterministically normalized to the documented fixture topology and
+   disclosed as such; general sources are never normalized this way.
+2. A human inspects the draft and either confirms it as displayed or rejects it
+   and recompiles. V1 has no graph editor and must not imply that confirmation
+   corrects a rule.
 3. Deterministic code computes `REACHABLE`, `BLOCKED`, or `UNKNOWN` for bounded
    capability profiles and explains the exact path or obstruction.
 
@@ -29,25 +33,52 @@ documentation, and submission copy.
   entitlement, fairness, legality, accessibility conformance, or compliance.
 - Model output is always a process draft whose steps are individually
   `unconfirmed`; it must not contain an authoritative verdict.
+- The declared outcome step must exist and have `kind: "outcome"`. Every
+  declared step must belong to the dependency closure of that outcome; orphan
+  or unrelated declared steps are schema-invalid.
 - The product may present an authoritative deterministic verdict only for a
-  schema-valid, human-confirmed graph. The engine defensively returns
-  non-authoritative `UNKNOWN` for any unconfirmed step.
+  schema-valid, human-confirmed graph. Any unconfirmed declared step makes the
+  deterministic result `UNKNOWN`, even if a candidate route would not traverse
+  that step.
 - `REACHABLE` means the confirmed graph proves at least one valid route through
   its entry conditions to the declared outcome step for the selected capability
   profile.
 - `BLOCKED` means the confirmed graph proves that no valid completion path is
   available for that profile and identifies graph-grounded blockers.
-- `UNKNOWN` means an unconfirmed step, unknown capability, or unresolved timing
-  or dependency prevents either proof. Missing evidence must never be converted
-  into a confident block or pass.
+- `UNKNOWN` means an unconfirmed step, unknown capability, unresolved timing or
+  dependency, an unprovable non-overlapping schedule, or a bounded exact-analysis
+  limit prevents either proof. Missing evidence, ambiguous overlap, or exhausted
+  analysis budget must never be converted into a confident block or pass.
+- A single-person profile may be `REACHABLE` only when the selected path has a
+  proven serialized schedule with no overlapping steps inside the declared
+  windows and deadline. If one bounded order cannot be proven and another cannot
+  be ruled out, return `UNKNOWN`, never optimistic `REACHABLE` or false
+  `BLOCKED`.
 - Every model-extracted step, dependency, requirement, or channel must retain
   source grounding or be explicitly marked unresolved.
 - Capability profiles describe functional constraints such as mobile-only,
   no printer, no SMS, or after-hours-only. They must not infer protected traits
   or act as demographic personas.
 - A process or profile change requires a fresh deterministic evaluation.
+- Report generation must re-evaluate the exact supplied process and profile and
+  reject any caller-supplied assessment that differs from that fresh result.
+  Matching IDs or versions alone are insufficient proof against stale or forged
+  assessment content.
+- A process-version comparison requires the same declared outcome and identical
+  declared capability-ID vocabulary on both sides. It is bounded to 64 profiles
+  and must expose blocker IDs, unknown-reason IDs, and canonical full-assessment
+  evidence fingerprints before and after so content changes remain reviewable,
+  including `UNKNOWN` → `UNKNOWN` changes.
+- `allOf` is a logical conjunction, not an execution-order instruction. Its
+  members must be canonicalized so permutations produce the same evaluation;
+  cycle evidence must likewise use one canonical representative.
+- The evaluator must meter deterministic aggregate work budgets across exact
+  blocker and scheduling analysis. Exhaustion fails fast to `UNKNOWN` with
+  `analysis-limit`, never a partial confident result.
 - A fallback must remain visibly labeled and must never be presented as a live
   GPT compilation of the user's source.
+- Public live GPT must remain disabled until server-side identity and persistent
+  per-user quota/rate controls are implemented and verified.
 
 If a proposed change breaks one of these invariants, stop and redesign it.
 
@@ -147,19 +178,35 @@ For UI or API changes, also verify manually:
 
 1. a live compile is labeled `live`, returns top-level `confirmed: false`, only
    `unconfirmed` steps, and no verdict;
-2. missing key, refusal, timeout, or invalid model output produces a plainly
+2. the exact bundled Pineglass live request calls GPT for grounded extraction
+   and validation, then visibly discloses deterministic normalization to the
+   canonical fixture topology; a general source is not normalized;
+3. missing key, refusal, timeout, or invalid model output produces a plainly
    labeled fallback rather than a fake live result;
-3. production with the live-model flag unset or false does not call GPT and
+4. production with the live-model flag unset or false does not call GPT and
    returns the explicit fallback;
-4. no deterministic verdict appears before human confirmation;
-5. the standard synthetic profile is `REACHABLE`;
-6. the constrained synthetic profile exposes the intended blocker or cycle;
-7. the repaired process with the unknown-capability profile is `UNKNOWN`, not
+5. the review UI offers confirmation as displayed or rejection/recompilation,
+   without implying an editing capability;
+6. the declared outcome is an `outcome` step, every declared step is in its
+   dependency closure, and one unconfirmed declared step yields `UNKNOWN`;
+7. the standard synthetic profile is `REACHABLE`;
+8. the constrained synthetic profile exposes the intended blocker or cycle;
+9. the repaired process with the unknown-capability profile is `UNKNOWN`, not
    guessed;
-8. changing one capability or process edge recomputes the result;
-9. no source text or model output is persisted;
-10. desktop and mobile flows work without console errors;
-11. the page remains usable by keyboard and with reduced motion enabled.
+10. report creation rejects a stale or forged assessment after re-evaluating the
+    exact process/profile;
+11. version comparison rejects a changed outcome or capability-ID vocabulary and
+    reports blocker and unknown-reason IDs before and after;
+12. a single-person `REACHABLE` result has a proven non-overlapping serialized
+    schedule, while ambiguous overlap returns `UNKNOWN`;
+13. permuting `allOf` members preserves the result and cycle evidence uses a
+    canonical representative;
+14. exhausting a deterministic exact-analysis work budget fails fast to
+    `analysis-limit` `UNKNOWN`;
+15. changing one capability or process edge recomputes the result;
+16. no source text or model output is persisted;
+17. desktop and mobile flows work without console errors;
+18. the page remains usable by keyboard and with reduced motion enabled.
 
 Do not state that a check passed unless it was run against the current source
 state. Record skipped checks and residual risk.

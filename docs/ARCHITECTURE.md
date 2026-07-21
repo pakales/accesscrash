@@ -13,7 +13,7 @@ the only authoritative states: `REACHABLE`, `BLOCKED`, or `UNKNOWN`.
 flowchart LR
     S["Synthetic source instructions"] --> C["GPT-5.6 compile"]
     C --> D["Cited draft · every step unconfirmed"]
-    D --> H["Human review and confirmation"]
+    D --> H["Human inspect · confirm as displayed or reject/recompile"]
     H --> E["Deterministic graph engine"]
     P["Synthetic capability profile"] --> E
     E --> R["Path, blockers, cycles, verdict"]
@@ -37,14 +37,18 @@ sequenceDiagram
     UI->>API: Strict JSON or one bounded multipart file
     API->>API: Validate origin, content type, size, and input schema
     API->>GPT: Source as untrusted data + strict graph output schema
-    alt Valid live response
+    alt Valid general live response
         GPT-->>API: Source-grounded graph draft
         API->>API: Validate structure and semantic invariants
         API-->>UI: mode live, confirmed false, unconfirmed steps, warnings
+    else Valid exact bundled Pineglass live response
+        GPT-->>API: Source-grounded extraction draft
+        API->>API: Validate grounding, then normalize to canonical fixture topology
+        API-->>UI: mode live, unconfirmed canonical topology, normalization warning
     else Missing key, refusal, timeout, API, or schema failure
         API-->>UI: mode fallback, synthetic draft, explicit warning
     end
-    User->>UI: Review citations and confirm rules
+    User->>UI: Inspect citations; confirm as displayed or reject/recompile
     UI->>Engine: Confirmed graph + bounded capability twin
     Engine-->>UI: Deterministic BEFORE report
     User->>UI: Apply synthetic minimum repair set
@@ -65,8 +69,13 @@ The UI owns interaction state, not truth. Its responsibilities are:
   text;
 - making live versus fallback compilation unmistakable;
 - displaying source excerpts beside the rule derived from them;
-- requiring explicit review and confirmation;
+- exposing each rule's prerequisite routes, capability routes, duration, and
+  availability before confirmation;
+- requiring explicit inspection and either confirmation as displayed or
+  rejection/recompilation; V1 has no graph editor;
 - selecting a fixed standard profile and capability-constrained twin;
+- allowing a zero-constraint control twin when no functional condition is
+  selected or declared, without inventing a generic barrier;
 - invoking the pure engine and rendering its returned proof;
 - applying a clearly disclosed, three-alternative in-memory repair simulation;
 - resetting all local state for another test.
@@ -134,7 +143,17 @@ Validation failures return the stable bounded envelope
 The fallback is a judgeability path, not a source compiler. It must not imply
 that the supplied text produced the bundled synthetic graph. The production
 enable flag is only a fail-safe switch; it does not replace identity, quota, or
-rate controls.
+rate controls. Public live GPT remains disabled until server-side identity and
+persistent per-user quota/rate controls are implemented and verified.
+
+The exact bundled Pineglass source has a separate, explicit live-success path.
+When both its source name and normalized text match, the route still calls
+GPT-5.6 and validates the returned draft for structure, authority, and source
+grounding. It then deterministically normalizes that accepted draft to the
+documented Pineglass fixture topology and emits a visible warning. This is a
+demo reproducibility boundary, not a claim that GPT independently reconstructed
+the canonical topology. General sources keep their validated model-produced
+topology and never enter this normalization path.
 
 ### Schemas
 
@@ -151,6 +170,11 @@ The graph represents only what the engine needs to prove a route:
 - source grounding for extracted rules;
 - explicit confirmation and unresolved-evidence state.
 
+Schema validity additionally requires that `journey.outcomeStepId` reference a
+step whose `kind` is `outcome`, and that every declared step belong to the
+recursive dependency closure of that outcome. A disconnected or unrelated
+declared step is rejected rather than silently excluded from authority checks.
+
 The model-facing schema deliberately omits a verdict field.
 
 Citation validation is deliberately narrow. Code verifies shape, bounds,
@@ -164,7 +188,8 @@ Dependencies and capabilities use an explicit **OR-of-AND** contract. A step
 may expose multiple alternative routes; every item inside the selected route's
 `allOf` list is required. This supports statements such as “complete either the
 online route or the advisor route” without asking the model to evaluate the
-choice at runtime.
+choice at runtime. `allOf` is unordered conjunction, not execution order; member
+IDs are canonicalized so permutations produce identical evidence.
 
 Unknown time is represented as `null`, never invented. A `null` journey
 timestamp, step duration, or availability collection is unresolved evidence;
@@ -182,23 +207,40 @@ Its responsibilities are bounded to graph mechanics:
 - identify transitions available to the selected capability profile;
 - search for at least one valid route through entry conditions to the declared
   outcome step;
-- identify relevant cycles and disconnected regions;
+- identify relevant cycles and path obstructions within the validated outcome
+  dependency closure;
 - return graph-grounded blockers when no path exists;
-- return `UNKNOWN` when an unconfirmed step, unknown capability, or unresolved
-  timing or dependency prevents proof;
+- return `UNKNOWN` when any declared step is unconfirmed, or when an unknown
+  capability, unresolved timing/dependency, unprovable serialized schedule, or
+  bounded total-work analysis prevents proof; an unconfirmed alternate branch
+  cannot be ignored;
 - compare BEFORE and AFTER results without model involvement.
 
 For each step, the engine resolves prerequisite alternatives, capability
 alternatives, human confirmation, duration, the journey deadline, step
-availability, and profile availability. It chooses the earliest reachable
-route deterministically. Missing capability state propagates `UNKNOWN`; a known
-unavailable capability or impossible time window contributes a blocker. Missing
-journey or step timing propagates the `unresolved-time` reason.
+availability, and profile availability. Because one profile represents one
+person, a reachable selected path must have a proven serialized schedule with
+no overlapping steps. If bounded analysis cannot establish a valid order or
+prove that none exists, it returns `UNKNOWN` rather than assuming parallel work
+or producing a false block. Missing capability state also propagates `UNKNOWN`;
+a known unavailable capability or proven-impossible schedule contributes a
+blocker. Missing journey or step timing propagates the `unresolved-time` reason.
 
 Directed cycles are detected with Tarjan's strongly connected components
 algorithm. Blocker combinations are normalized into bounded minimal blocker
-sets. Version comparison classifies each profile as `REGRESSION`,
+sets, and cycle evidence uses a canonical representative. Deterministic
+aggregate work budgets cover exact evaluation; exhaustion fails fast to an
+`analysis-limit` `UNKNOWN` rather than returning partial confident evidence.
+Version comparison classifies each profile as `REGRESSION`,
 `POTENTIAL_REGRESSION`, `RECOVERY`, `UNCHANGED`, or `CHANGED`.
+
+Version comparison first requires matching process IDs, the same declared
+outcome, and identical declared capability-ID vocabulary, and accepts at most 64
+profiles. Each comparison entry preserves blocker and unknown-reason IDs plus a
+canonical complete assessment-evidence fingerprint before and after. A changed
+obstruction, uncertainty, path, or timing is therefore `CHANGED` even for
+`BLOCKED` → `BLOCKED` or `UNKNOWN` → `UNKNOWN`; process-version identity alone
+does not change the fingerprint.
 
 The engine does not interpret raw policy prose, infer user characteristics, or
 repair the process.
@@ -209,8 +251,9 @@ repair the process.
 fictional Pineglass Institute · Access Grant states:
 
 - `pineglassBaselineProcess` — the process with the demonstrable access crash;
-- `pineglassRepairedProcess` — the minimum demo repair set: email verification,
-  mobile upload, and evening review alternatives that together open a route;
+- `pineglassRepairedProcess` — the bundled demo repair set: email verification,
+  mobile upload, and evening review alternatives that together open the default
+  constrained twin's route; other selected constraints may remain;
 - `pineglassRegressedProcess` — a deliberate regression used to prove the engine
   catches a path closing again.
 
@@ -219,13 +262,16 @@ These are fixtures, not records of a real institution, program, or applicant.
 ### Deterministic reports
 
 [`lib/accesscrash-report.ts`](../lib/accesscrash-report.ts) formats engine output
-without adding model interpretation. A report should keep the following linked:
+without adding model interpretation. It re-evaluates the exact supplied process
+and profile and rejects a caller-supplied assessment unless the entire
+deterministic result matches; matching identity fields alone cannot authorize a
+stale or forged assessment. A report keeps the following linked:
 
 - graph and profile identity;
 - confirmation state;
 - verdict;
 - reachable path when present;
-- blockers, cycles, or unresolved evidence when present;
+- blockers, cycles, or another uncertainty reason when present;
 - source rule references;
 - BEFORE / AFTER regression result.
 
@@ -236,7 +282,7 @@ without adding model interpretation. A report should keep the following linked:
 | Extract candidate steps from prose | Drafts | Reviews | Validates shape |
 | Attach source excerpts | Drafts | Reviews | Checks bounded contract |
 | Resolve ambiguous policy meaning | No | Yes, outside model authority | No |
-| Confirm graph | No | Yes | Enforces precondition |
+| Confirm graph as displayed or reject/recompile | No | Yes | Enforces precondition; provides no editor |
 | Decide eligibility | No | No, out of product scope | No |
 | Decide reachability | No | No | Yes |
 | Detect path / blocker / cycle | No | No | Yes |
@@ -264,11 +310,17 @@ without adding model interpretation. A report should keep the following linked:
 | Missing key | Return visibly labeled synthetic fallback |
 | Production live flag unset or false | Return visibly labeled synthetic fallback without calling GPT |
 | Model refusal, timeout, or API error | Return visibly labeled synthetic fallback and warning |
-| Incomplete model response or canonical fixture-ID drift | Discard it; return fallback, never a partial or unstable live demo |
+| Incomplete model response or exact-Pineglass identifier/route-contract drift | Discard it and return fallback; canonical normalization never repairs an invalid live draft |
 | Schema-invalid model output | Discard it; return fallback, never partial live data |
-| Unconfirmed graph | Do not issue an authoritative verdict |
+| Exact Pineglass grounded live draft | Normalize deterministically to the documented fixture topology and show a warning |
+| Unconfirmed declared step | Return `UNKNOWN`; do not ignore it because another route appears complete |
 | Unconfirmed or unresolved graph evidence | Return `UNKNOWN` with the exact unresolved reason |
-| Schema-invalid or referentially inconsistent graph | Reject before evaluation |
+| Single-person path needs ambiguous overlap | Return `UNKNOWN` unless a non-overlapping serialized schedule is proven; do not assume parallel work or a false block |
+| A deterministic exact-analysis work budget is exhausted | Fail fast to `UNKNOWN` with an `analysis-limit` reason; never return partial confident evidence |
+| Permuted `allOf` or cycle discovery order | Canonicalize conjunction members and use one canonical cycle representative |
+| Invalid outcome kind, orphan step, or other schema/referential inconsistency | Reject before evaluation |
+| Stale or forged assessment supplied for a report | Re-evaluate the exact process/profile and reject the mismatch |
+| Comparison changes declared outcome or capability-ID vocabulary | Reject before comparing; otherwise retain blocker and unknown-reason IDs before and after |
 | No valid route proven | Return `BLOCKED` with graph-grounded blockers |
 | UI or model failure after a prior run | Do not silently reuse a stale verdict for changed inputs |
 

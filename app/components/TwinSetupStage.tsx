@@ -53,7 +53,11 @@ export function TwinSetupStage({
   onRun,
   onBack,
 }: TwinSetupStageProps) {
-  const canRun = selectedCapabilityIds.size > 0;
+  const hasCapabilityOptions = options.length > 0;
+  const selectedCopy =
+    selectedCapabilityIds.size === 0
+      ? "Control twin"
+      : `${selectedCapabilityIds.size} selected`;
 
   return (
     <section className="ac-stage" aria-labelledby="twin-stage-title">
@@ -107,43 +111,61 @@ export function TwinSetupStage({
             </span>
             <div>
               <small>Twin B · Stress test</small>
-              <strong>Capability-constrained</strong>
-              <p>Only the selected access conditions differ.</p>
+              <strong>
+                {selectedCapabilityIds.size === 0
+                  ? "Control comparison"
+                  : "Capability-constrained"}
+              </strong>
+              <p>
+                {selectedCapabilityIds.size === 0
+                  ? "No functional access conditions are removed; this verifies the control path."
+                  : "Only the selected access conditions differ."}
+              </p>
             </div>
             <span className="ac-twin-state">
-              {selectedCapabilityIds.size} selected
+              {selectedCopy}
             </span>
           </div>
         </div>
 
         <fieldset className="ac-capability-fieldset">
           <legend>What should Twin B lack or be unable to use?</legend>
-          <p>Select real access conditions, not identity traits.</p>
-          <div className="ac-capability-options">
-            {options.map((option) => {
-              const selected = selectedCapabilityIds.has(option.id);
-              return (
-                <button
-                  aria-pressed={selected}
-                  className={`ac-capability-option ${selected ? "is-selected" : ""}`}
-                  key={option.id}
-                  onClick={() => onToggleCapability(option.id)}
-                  type="button"
-                >
-                  <span className="ac-capability-icon" aria-hidden="true">
-                    {capabilityIcon(option.id)}
-                  </span>
-                  <span>
-                    <strong>{option.title}</strong>
-                    <small>{option.description}</small>
-                  </span>
-                  <span className="ac-selection-indicator" aria-hidden="true">
-                    {selected ? <Check size={13} strokeWidth={2.8} /> : null}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
+          <p>
+            {hasCapabilityOptions
+              ? "Select real access conditions, not identity traits. Leave all unselected to run a control twin."
+              : "This process declares no capability requirements. Run the control twin to verify the confirmed path without inventing generic constraints."}
+          </p>
+          {hasCapabilityOptions ? (
+            <div className="ac-capability-options">
+              {options.map((option) => {
+                const selected = selectedCapabilityIds.has(option.id);
+                return (
+                  <button
+                    aria-pressed={selected}
+                    className={`ac-capability-option ${selected ? "is-selected" : ""}`}
+                    key={option.id}
+                    onClick={() => onToggleCapability(option.id)}
+                    type="button"
+                  >
+                    <span className="ac-capability-icon" aria-hidden="true">
+                      {capabilityIcon(option.id)}
+                    </span>
+                    <span>
+                      <strong>{option.title}</strong>
+                      <small>{option.description}</small>
+                    </span>
+                    <span className="ac-selection-indicator" aria-hidden="true">
+                      {selected ? <Check size={13} strokeWidth={2.8} /> : null}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="ac-empty-capability-note" role="status">
+              No declared capabilities to remove.
+            </div>
+          )}
         </fieldset>
 
         <div className="ac-stage-actionbar">
@@ -153,7 +175,6 @@ export function TwinSetupStage({
           </button>
           <button
             className="ac-primary-action"
-            disabled={!canRun}
             onClick={onRun}
             type="button"
           >
