@@ -2,28 +2,28 @@
 
 :root {
   color-scheme: dark;
-  --ac-canvas: #06100e;
-  --ac-canvas-raised: #0a1714;
-  --ac-surface: rgb(16 32 28 / 82%);
-  --ac-surface-solid: #10201c;
-  --ac-surface-muted: rgb(255 255 255 / 3.8%);
-  --ac-ink: #f2fbf7;
-  --ac-ink-secondary: #b8cac3;
-  --ac-ink-muted: #789088;
-  --ac-line: rgb(219 255 240 / 11%);
-  --ac-line-strong: rgb(219 255 240 / 19%);
-  --ac-mint: #8df4cf;
-  --ac-mint-bright: #c5ffe8;
-  --ac-mint-deep: #3bc89d;
-  --ac-red: #ff8673;
-  --ac-red-soft: rgb(255 134 115 / 13%);
-  --ac-amber: #ffc76c;
-  --ac-amber-soft: rgb(255 199 108 / 12%);
+  --ac-canvas: #070909;
+  --ac-canvas-raised: #101313;
+  --ac-surface: #151918;
+  --ac-surface-solid: #141918;
+  --ac-surface-muted: rgb(245 242 232 / 3.5%);
+  --ac-ink: #f4f2e9;
+  --ac-ink-secondary: #c4c3ba;
+  --ac-ink-muted: #83857f;
+  --ac-line: rgb(244 242 233 / 10%);
+  --ac-line-strong: rgb(244 242 233 / 17%);
+  --ac-mint: #83f2c4;
+  --ac-mint-bright: #c7ffe7;
+  --ac-mint-deep: #35c895;
+  --ac-red: #e7836c;
+  --ac-red-soft: rgb(231 131 108 / 12%);
+  --ac-amber: #d8ae68;
+  --ac-amber-soft: rgb(216 174 104 / 11%);
   --ac-blue: #79c9ff;
   --ac-focus: #b5ffe5;
-  --ac-radius-surface: 24px;
-  --ac-radius-control: 14px;
-  --ac-shadow: 0 28px 90px rgb(0 0 0 / 26%);
+  --ac-radius-surface: 8px;
+  --ac-radius-control: 6px;
+  --ac-shadow: 0 20px 64px rgb(0 0 0 / 22%);
 }
 
 @theme inline {
@@ -101,33 +101,16 @@ button {
   isolation: isolate;
   min-height: 100vh;
   overflow-x: clip;
-  background:
-    radial-gradient(circle at 6% 10%, rgb(48 170 129 / 10%), transparent 28rem),
-    radial-gradient(circle at 94% 26%, rgb(63 141 126 / 8%), transparent 30rem),
-    linear-gradient(180deg, #081411 0%, var(--ac-canvas) 43%, #050c0b 100%);
-}
-
-.ac-app::before {
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  opacity: 0.25;
-  background-image:
-    linear-gradient(rgb(255 255 255 / 2.4%) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(255 255 255 / 2.4%) 1px, transparent 1px);
-  background-size: 48px 48px;
-  mask-image: linear-gradient(to bottom, black, transparent 75%);
-  pointer-events: none;
-  content: "";
+  background: linear-gradient(180deg, #0d1010 0%, #090c0b 42%, #060808 100%);
 }
 
 .ac-app-header {
   position: sticky;
   z-index: 30;
   top: 0;
-  border-bottom: 1px solid rgb(219 255 240 / 8%);
-  background: rgb(6 16 14 / 78%);
-  backdrop-filter: blur(22px) saturate(145%);
+  border-bottom: 1px solid var(--ac-line);
+  background: rgb(8 11 11 / 91%);
+  backdrop-filter: blur(16px);
 }
 
 .ac-header-inner {
@@ -135,7 +118,7 @@ button {
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
   width: min(1240px, 100%);
-  min-height: 70px;
+  min-height: 68px;
   margin: 0 auto;
   padding: 0 28px;
 }
@@ -151,28 +134,17 @@ button {
 }
 
 .ac-brand-mark {
-  position: relative;
   display: grid;
-  width: 38px;
-  height: 38px;
+  width: 40px;
+  height: 40px;
   flex: 0 0 auto;
   place-items: center;
   overflow: hidden;
-  border: 1px solid rgb(197 255 232 / 22%);
-  border-radius: 12px;
-  background:
-    linear-gradient(145deg, rgb(197 255 232 / 18%), transparent 56%),
-    rgb(141 244 207 / 8%);
-  color: var(--ac-mint-bright);
+  border-radius: 11px;
 }
 
-.ac-brand-mark::after {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(115deg, transparent 45%, rgb(255 255 255 / 14%), transparent 62%);
-  transform: translateX(-80%);
-  content: "";
-  animation: ac-mark-shimmer 8s ease-in-out infinite;
+.ac-brand-mark img {
+  display: block;
 }
 
 .ac-brand > span:last-child {
@@ -182,8 +154,9 @@ button {
 }
 
 .ac-brand strong {
-  font-size: 15px;
-  font-weight: 720;
+  color: var(--ac-ink);
+  font-size: 16px;
+  font-weight: 750;
   line-height: 1.1;
 }
 
@@ -200,10 +173,10 @@ button {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  border: 1px solid var(--ac-line);
-  border-radius: 999px;
-  padding: 0 13px;
-  background: rgb(255 255 255 / 3.5%);
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
   color: var(--ac-ink-secondary);
   font-size: 11px;
   font-weight: 580;
@@ -214,7 +187,58 @@ button {
   height: 6px;
   border-radius: 50%;
   background: var(--ac-mint);
-  box-shadow: 0 0 0 4px rgb(141 244 207 / 10%);
+  box-shadow: 0 0 0 3px rgb(131 242 196 / 9%);
+}
+
+.ac-header-trailing {
+  display: flex;
+  align-items: center;
+  justify-self: end;
+  gap: 18px;
+}
+
+.ac-publisher-link {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 8px;
+  border-left: 1px solid var(--ac-line);
+  padding-left: 16px;
+  color: var(--ac-ink-secondary);
+  text-decoration: none;
+}
+
+.ac-publisher-link:hover,
+.ac-publisher-link:focus-visible {
+  color: var(--ac-ink);
+}
+
+.ac-publisher-mark {
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+}
+
+.ac-publisher-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.ac-publisher-copy small {
+  color: var(--ac-ink-muted);
+  font-size: 7px;
+  font-weight: 750;
+  letter-spacing: 0.17em;
+  line-height: 1;
+}
+
+.ac-publisher-copy strong {
+  font-size: 9px;
+  font-weight: 720;
+  letter-spacing: 0.04em;
+  line-height: 1.15;
+  white-space: nowrap;
 }
 
 .ac-stage-counter {
@@ -228,10 +252,10 @@ button {
 .ac-shell {
   display: grid;
   grid-template-columns: 172px minmax(0, 1fr);
-  gap: clamp(28px, 5vw, 76px);
+  gap: clamp(28px, 4vw, 58px);
   width: min(1180px, 100%);
   margin: 0 auto;
-  padding: 54px 32px 42px;
+  padding: 40px 32px 36px;
 }
 
 .ac-main {
@@ -282,7 +306,7 @@ button {
   height: 28px;
   place-items: center;
   border: 1px solid var(--ac-line);
-  border-radius: 9px;
+  border-radius: 5px;
   background: var(--ac-canvas-raised);
   color: var(--ac-ink-muted);
   font-family: var(--font-geist-mono), ui-monospace, monospace;
@@ -322,7 +346,7 @@ button {
 
 .ac-stage-intro {
   max-width: 780px;
-  margin-bottom: 28px;
+  margin-bottom: 20px;
 }
 
 .ac-eyebrow,
@@ -338,20 +362,20 @@ button {
 
 .ac-stage-intro h1 {
   max-width: 750px;
-  margin: 10px 0 0;
-  font-size: clamp(34px, 5vw, 58px);
-  font-weight: 660;
-  letter-spacing: 0;
-  line-height: 0.99;
+  margin: 8px 0 0;
+  font-size: clamp(34px, 4.5vw, 52px);
+  font-weight: 710;
+  letter-spacing: -0.025em;
+  line-height: 1;
   text-wrap: balance;
 }
 
 .ac-stage-intro > p:last-child {
   max-width: 660px;
-  margin: 17px 0 0;
+  margin: 12px 0 0;
   color: var(--ac-ink-secondary);
-  font-size: clamp(14px, 1.7vw, 17px);
-  line-height: 1.58;
+  font-size: clamp(14px, 1.5vw, 16px);
+  line-height: 1.5;
 }
 
 .ac-stage-surface {
@@ -359,22 +383,8 @@ button {
   overflow: hidden;
   border: 1px solid var(--ac-line-strong);
   border-radius: var(--ac-radius-surface);
-  background:
-    linear-gradient(145deg, rgb(255 255 255 / 5.8%), transparent 34%),
-    linear-gradient(180deg, rgb(16 34 29 / 92%), rgb(9 23 19 / 90%));
-  box-shadow: var(--ac-shadow);
-  backdrop-filter: blur(24px) saturate(130%);
-}
-
-.ac-stage-surface::before {
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background:
-    radial-gradient(circle at 85% 0%, rgb(141 244 207 / 9%), transparent 28%),
-    linear-gradient(110deg, transparent 0 65%, rgb(255 255 255 / 2.5%) 100%);
-  pointer-events: none;
-  content: "";
+  background: linear-gradient(180deg, #161a19 0%, #0d1110 100%);
+  box-shadow: var(--ac-shadow), inset 0 1px rgb(255 255 255 / 3%);
 }
 
 .ac-stage-surface > * {
@@ -385,34 +395,34 @@ button {
   display: flex;
   min-height: 46px;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 9px;
   border-bottom: 1px solid rgb(255 199 108 / 14%);
   padding: 10px 18px;
-  background: rgb(255 199 108 / 7%);
+  background: rgb(216 174 104 / 6%);
   color: #ead09f;
   font-size: 10px;
   font-weight: 590;
   line-height: 1.4;
-  text-align: center;
+  text-align: left;
 }
 
 .ac-segmented {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 4px;
-  margin: 20px 20px 0;
+  margin: 14px 14px 0;
   border: 1px solid var(--ac-line);
-  border-radius: 15px;
+  border-radius: 7px;
   padding: 4px;
-  background: rgb(0 0 0 / 17%);
+  background: rgb(0 0 0 / 22%);
 }
 
 .ac-segmented button,
 .ac-version-switch button {
-  min-height: 38px;
+  min-height: 36px;
   border: 0;
-  border-radius: 10px;
+  border-radius: 4px;
   background: transparent;
   color: var(--ac-ink-muted);
   cursor: pointer;
@@ -434,14 +444,14 @@ button {
 }
 
 .ac-source-body {
-  min-height: 330px;
-  padding: 36px 38px;
+  min-height: 0;
+  padding: 24px 28px;
 }
 
 .ac-fixture-summary {
   display: grid;
-  grid-template-columns: 54px minmax(0, 1fr);
-  gap: 18px;
+  grid-template-columns: 46px minmax(0, 1fr);
+  gap: 14px;
   align-items: start;
 }
 
@@ -455,41 +465,118 @@ button {
 }
 
 .ac-fixture-symbol {
-  width: 54px;
-  height: 54px;
+  width: 46px;
+  height: 46px;
   border: 1px solid rgb(141 244 207 / 19%);
-  border-radius: 17px;
-  background: rgb(141 244 207 / 8%);
+  border-radius: 6px;
+  background: rgb(131 242 196 / 7%);
 }
 
 .ac-fixture-summary h2,
 .ac-surface-heading h2,
 .ac-result-copy h2 {
-  margin: 7px 0 0;
-  font-size: clamp(21px, 3vw, 29px);
+  margin: 5px 0 0;
+  font-size: clamp(20px, 2.6vw, 26px);
   font-weight: 650;
   line-height: 1.1;
 }
 
 .ac-fixture-summary > div:nth-child(2) > p:last-child {
   max-width: 590px;
-  margin: 10px 0 0;
+  margin: 7px 0 0;
   color: var(--ac-ink-secondary);
-  font-size: 14px;
-  line-height: 1.55;
+  font-size: 13px;
+  line-height: 1.48;
+}
+
+.ac-verdict-contract {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: minmax(0, 1fr) 32px minmax(0, 1fr);
+  align-items: stretch;
+  overflow: hidden;
+  margin-top: 20px;
+  border: 1px solid var(--ac-line);
+  border-radius: 7px;
+  background: #0b0e0e;
+}
+
+.ac-verdict-contract > div {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  min-height: 72px;
+  padding: 11px 14px;
+}
+
+.ac-verdict-contract > div.is-blocked {
+  border-left: 2px solid var(--ac-red);
+  background: linear-gradient(90deg, var(--ac-red-soft), transparent 70%);
+}
+
+.ac-verdict-contract > div.is-reachable {
+  border-right: 2px solid var(--ac-mint);
+  background: linear-gradient(270deg, rgb(131 242 196 / 8%), transparent 70%);
+}
+
+.ac-contract-icon {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border: 1px solid var(--ac-line-strong);
+  border-radius: 5px;
+}
+
+.is-blocked .ac-contract-icon,
+.is-blocked strong {
+  color: var(--ac-red);
+}
+
+.is-reachable .ac-contract-icon,
+.is-reachable strong {
+  color: var(--ac-mint);
+}
+
+.ac-verdict-contract > div > span:last-child {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ac-verdict-contract small,
+.ac-verdict-contract em {
+  color: var(--ac-ink-muted);
+  font-size: 9px;
+  font-style: normal;
+  line-height: 1.25;
+}
+
+.ac-verdict-contract strong {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.07em;
+}
+
+.ac-contract-arrow {
+  align-self: center;
+  justify-self: center;
+  color: var(--ac-ink-muted);
 }
 
 .ac-source-facts {
   display: grid;
   grid-column: 1 / -1;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin: 32px 0 0;
+  margin: 18px 0 0;
   border-top: 1px solid var(--ac-line);
   border-bottom: 1px solid var(--ac-line);
 }
 
 .ac-source-facts div {
-  padding: 18px 20px;
+  padding: 12px 14px;
 }
 
 .ac-source-facts div + div {
@@ -526,7 +613,7 @@ button {
   justify-content: center;
   gap: 17px;
   border: 1px dashed rgb(141 244 207 / 28%);
-  border-radius: 18px;
+  border-radius: 8px;
   background: rgb(141 244 207 / 3.5%);
   cursor: pointer;
   transition: border-color 160ms ease, background 160ms ease;
@@ -549,7 +636,7 @@ button {
 .ac-file-icon {
   width: 48px;
   height: 48px;
-  border-radius: 15px;
+  border-radius: 6px;
   background: rgb(141 244 207 / 10%);
 }
 
@@ -597,7 +684,7 @@ button {
   min-height: 225px;
   resize: vertical;
   border: 1px solid var(--ac-line-strong);
-  border-radius: 16px;
+  border-radius: 8px;
   padding: 17px 18px;
   background: rgb(0 0 0 / 20%);
   color: var(--ac-ink);
@@ -621,7 +708,7 @@ button {
   gap: 8px;
   margin: 0 20px 18px;
   border: 1px solid rgb(255 134 115 / 24%);
-  border-radius: 13px;
+  border-radius: 6px;
   padding: 12px 14px;
   background: var(--ac-red-soft);
   color: #ffd2ca;
@@ -635,12 +722,12 @@ button {
 
 .ac-stage-actionbar {
   display: flex;
-  min-height: 80px;
+  min-height: 72px;
   align-items: center;
   justify-content: space-between;
   gap: 18px;
   border-top: 1px solid var(--ac-line);
-  padding: 16px 20px;
+  padding: 12px 14px;
   background: rgb(0 0 0 / 10%);
 }
 
@@ -761,7 +848,7 @@ button {
   height: 34px;
   place-items: center;
   border: 1px solid rgb(141 244 207 / 18%);
-  border-radius: 11px;
+  border-radius: 6px;
   background: rgb(141 244 207 / 7%);
   color: var(--ac-mint);
 }
@@ -919,7 +1006,7 @@ button {
   height: 30px;
   place-items: center;
   border: 1px solid var(--ac-line-strong);
-  border-radius: 9px;
+  border-radius: 5px;
   color: var(--ac-ink-muted);
   font-family: var(--font-geist-mono), ui-monospace, monospace;
   font-size: 9px;
@@ -971,7 +1058,7 @@ button {
   overflow: hidden;
   margin: 12px 0 0;
   border: 1px solid var(--ac-line);
-  border-radius: 12px;
+  border-radius: 6px;
   background: var(--ac-line);
 }
 
@@ -1055,7 +1142,7 @@ button {
   height: 46px;
   place-items: center;
   border: 1px solid var(--ac-line-strong);
-  border-radius: 15px;
+  border-radius: 6px;
   background: rgb(255 255 255 / 5%);
   color: var(--ac-ink);
   font-family: var(--font-geist-mono), ui-monospace, monospace;
@@ -1149,7 +1236,7 @@ button {
   gap: 1px;
   overflow: hidden;
   border: 1px solid var(--ac-line);
-  border-radius: 16px;
+  border-radius: 8px;
   background: var(--ac-line);
 }
 
@@ -1158,7 +1245,7 @@ button {
   min-height: 76px;
   place-items: center;
   border: 1px solid var(--ac-line);
-  border-radius: 16px;
+  border-radius: 8px;
   background: rgb(4 18 15 / 88%);
   color: var(--ac-ink-secondary);
   font-size: 12px;
@@ -1195,7 +1282,7 @@ button {
   width: 34px;
   height: 34px;
   place-items: center;
-  border-radius: 10px;
+  border-radius: 5px;
   background: rgb(255 255 255 / 5%);
   color: var(--ac-ink-muted);
 }
@@ -1229,7 +1316,7 @@ button {
   height: 20px;
   place-items: center;
   border: 1px solid var(--ac-line-strong);
-  border-radius: 7px;
+  border-radius: 5px;
   color: var(--ac-mint-bright);
 }
 
@@ -1272,7 +1359,7 @@ button {
   height: 58px;
   place-items: center;
   border: 1px solid rgb(255 134 115 / 22%);
-  border-radius: 18px;
+  border-radius: 6px;
   background: var(--ac-red-soft);
   color: #ffad9f;
 }
@@ -1381,7 +1468,7 @@ button {
   min-width: 184px;
   gap: 3px;
   border: 1px solid var(--ac-line);
-  border-radius: 12px;
+  border-radius: 6px;
   padding: 3px;
   background: rgb(0 0 0 / 14%);
 }
@@ -1426,7 +1513,7 @@ button {
   flex: 0 0 auto;
   place-items: center;
   border: 1px solid var(--ac-line-strong);
-  border-radius: 9px;
+  border-radius: 5px;
   background: var(--ac-surface-solid);
   color: var(--ac-ink-muted);
   font-family: var(--font-geist-mono), ui-monospace, monospace;
@@ -1532,7 +1619,7 @@ button {
   width: 42px;
   height: 42px;
   border: 1px solid rgb(255 134 115 / 18%);
-  border-radius: 13px;
+  border-radius: 6px;
   background: rgb(255 134 115 / 8%);
   color: #ffad9f;
 }
@@ -1575,7 +1662,7 @@ button {
   width: 42px;
   height: 42px;
   border: 1px solid rgb(141 244 207 / 18%);
-  border-radius: 13px;
+  border-radius: 6px;
   background: rgb(141 244 207 / 7%);
 }
 
@@ -1669,17 +1756,6 @@ button {
   }
 }
 
-@keyframes ac-mark-shimmer {
-  0%,
-  72%,
-  100% {
-    transform: translateX(-90%);
-  }
-  82% {
-    transform: translateX(90%);
-  }
-}
-
 @media (max-width: 900px) {
   .ac-header-inner {
     padding: 0 20px;
@@ -1687,8 +1763,8 @@ button {
 
   .ac-shell {
     grid-template-columns: minmax(0, 1fr);
-    gap: 28px;
-    padding: 28px 20px 36px;
+    gap: 20px;
+    padding: 24px 20px 32px;
   }
 
   .ac-progress {
@@ -1729,12 +1805,13 @@ button {
 
 @media (max-width: 700px) {
   :root {
-    --ac-radius-surface: 20px;
+    --ac-radius-surface: 8px;
   }
 
   .ac-header-inner {
     grid-template-columns: 1fr auto;
     min-height: 64px;
+    padding: 0 12px;
   }
 
   .ac-truth-chip {
@@ -1742,16 +1819,40 @@ button {
   }
 
   .ac-brand-mark {
-    width: 36px;
-    height: 36px;
+    width: 38px;
+    height: 38px;
   }
 
   .ac-brand small {
     display: none;
   }
 
+  .ac-header-trailing {
+    gap: 0;
+  }
+
+  .ac-publisher-link {
+    gap: 6px;
+    padding-left: 10px;
+  }
+
+  .ac-publisher-mark {
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+  }
+
+  .ac-publisher-copy strong {
+    font-size: 8px;
+  }
+
+  .ac-stage-counter {
+    display: none;
+  }
+
   .ac-shell {
-    padding: 22px 16px 30px;
+    gap: 16px;
+    padding: 16px 14px 26px;
   }
 
   .ac-progress-label {
@@ -1763,69 +1864,108 @@ button {
   }
 
   .ac-stage-intro {
-    margin-bottom: 22px;
+    margin-bottom: 14px;
   }
 
   .ac-stage-intro h1 {
-    margin-top: 8px;
-    font-size: clamp(31px, 9.3vw, 44px);
-    line-height: 1.02;
+    margin-top: 6px;
+    font-size: clamp(32px, 9vw, 40px);
+    line-height: 1;
   }
 
   .ac-stage-intro > p:last-child {
-    margin-top: 13px;
-    font-size: 14px;
-    line-height: 1.52;
+    margin-top: 9px;
+    font-size: 13px;
+    line-height: 1.42;
   }
 
   .ac-segmented {
-    margin: 14px 14px 0;
+    margin: 10px 10px 0;
   }
 
   .ac-segmented button {
-    min-height: 44px;
+    min-height: 40px;
     padding: 0 5px;
     font-size: 9px;
   }
 
   .ac-source-body {
-    min-height: 342px;
-    padding: 28px 20px;
+    min-height: 0;
+    padding: 16px 14px;
   }
 
   .ac-fixture-summary {
-    grid-template-columns: 46px minmax(0, 1fr);
-    gap: 14px;
+    grid-template-columns: 42px minmax(0, 1fr);
+    gap: 11px;
   }
 
   .ac-fixture-symbol {
-    width: 46px;
-    height: 46px;
-    border-radius: 14px;
+    width: 42px;
+    height: 42px;
+    border-radius: 6px;
   }
 
   .ac-fixture-summary h2,
   .ac-surface-heading h2,
   .ac-result-copy h2 {
-    font-size: 21px;
+    font-size: 19px;
+  }
+
+  .ac-fixture-summary > div:nth-child(2) > p:last-child {
+    font-size: 11px;
+    line-height: 1.4;
+  }
+
+  .ac-verdict-contract {
+    grid-template-columns: minmax(0, 1fr) 22px minmax(0, 1fr);
+    margin-top: 13px;
+  }
+
+  .ac-verdict-contract > div {
+    grid-template-columns: 26px minmax(0, 1fr);
+    gap: 7px;
+    min-height: 68px;
+    padding: 8px;
+  }
+
+  .ac-contract-icon {
+    width: 26px;
+    height: 26px;
+  }
+
+  .ac-verdict-contract small,
+  .ac-verdict-contract em {
+    font-size: 7px;
+  }
+
+  .ac-verdict-contract strong {
+    font-size: 9px;
   }
 
   .ac-source-facts {
-    grid-template-columns: 1fr;
-    margin-top: 26px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin-top: 13px;
   }
 
   .ac-source-facts div {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 18px;
-    padding: 12px 4px;
+    min-width: 0;
+    padding: 9px 7px;
   }
 
   .ac-source-facts div + div {
-    border-top: 1px solid var(--ac-line);
-    border-left: 0;
+    border-top: 0;
+    border-left: 1px solid var(--ac-line);
+  }
+
+  .ac-source-facts dt {
+    margin-bottom: 3px;
+    font-size: 8px;
+  }
+
+  .ac-source-facts dd {
+    overflow-wrap: anywhere;
+    font-size: 10px;
+    line-height: 1.25;
   }
 
   .ac-file-drop {
@@ -1851,13 +1991,13 @@ button {
     align-items: stretch;
     flex-direction: column-reverse;
     gap: 7px;
-    padding: 14px;
+    padding: 11px;
   }
 
   .ac-primary-action,
   .ac-back-action {
     width: 100%;
-    min-height: 50px;
+    min-height: 48px;
   }
 
   .ac-action-boundary {
@@ -1867,7 +2007,8 @@ button {
 
   .ac-privacy-note {
     justify-content: center;
-    padding: 6px 10px 2px;
+    padding: 4px 8px 1px;
+    font-size: 9px;
     text-align: center;
   }
 
@@ -1970,7 +2111,7 @@ button {
   .ac-result-symbol {
     width: 48px;
     height: 48px;
-    border-radius: 15px;
+    border-radius: 6px;
   }
 
   .ac-verdict-badge {
@@ -2092,12 +2233,12 @@ button {
 
 @media (max-width: 400px) {
   .ac-stage-intro h1 {
-    font-size: 30px;
+    font-size: 32px;
   }
 
   .ac-source-body {
-    padding-right: 17px;
-    padding-left: 17px;
+    padding-right: 12px;
+    padding-left: 12px;
   }
 
   .ac-segmented button {

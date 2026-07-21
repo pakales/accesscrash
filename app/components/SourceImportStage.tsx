@@ -4,6 +4,8 @@ import {
   FileText,
   FlaskConical,
   LockKeyhole,
+  Route,
+  RouteOff,
   ShieldAlert,
   Upload,
 } from "lucide-react";
@@ -63,9 +65,9 @@ export function SourceImportStage({
   return (
     <section className="ac-stage" aria-labelledby="source-stage-title">
       <StageIntro
-        eyebrow="Process crash test"
-        title="Can someone who qualifies elsewhere actually finish?"
-        description="Import the process instructions. AccessCrash turns them into a source-linked path before testing where it breaks."
+        eyebrow="Human reachability test"
+        title="Eligibility is not access."
+        description="Compile one process, hold the external assumption fixed, and let deterministic code prove the route BLOCKED, REACHABLE, or UNKNOWN."
         titleId="source-stage-title"
       />
 
@@ -107,18 +109,48 @@ export function SourceImportStage({
                   inside otherwise digital instructions.
                 </p>
               </div>
+              <div
+                className="ac-verdict-contract"
+                aria-label="AccessCrash verdict workflow"
+              >
+                <div className="is-blocked">
+                  <span className="ac-contract-icon" aria-hidden="true">
+                    <RouteOff size={17} strokeWidth={2} />
+                  </span>
+                  <span>
+                    <small>Detect the break</small>
+                    <strong>BLOCKED</strong>
+                    <em>No executable path</em>
+                  </span>
+                </div>
+                <ArrowRight
+                  className="ac-contract-arrow"
+                  size={17}
+                  aria-hidden="true"
+                />
+                <div className="is-reachable">
+                  <span className="ac-contract-icon" aria-hidden="true">
+                    <Route size={17} strokeWidth={2} />
+                  </span>
+                  <span>
+                    <small>Re-test the change</small>
+                    <strong>REACHABLE</strong>
+                    <em>At least one proven path</em>
+                  </span>
+                </div>
+              </div>
               <dl className="ac-source-facts">
                 <div>
-                  <dt>Source</dt>
-                  <dd>7 process steps</dd>
+                  <dt>Graph</dt>
+                  <dd>7 cited steps</dd>
                 </div>
                 <div>
-                  <dt>People</dt>
+                  <dt>Test</dt>
                   <dd>2 capability twins</dd>
                 </div>
                 <div>
-                  <dt>Purpose</dt>
-                  <dd>Demonstration only</dd>
+                  <dt>Data</dt>
+                  <dd>Fictional only</dd>
                 </div>
               </dl>
             </div>
@@ -198,7 +230,15 @@ export function SourceImportStage({
             onClick={onCompile}
             type="button"
           >
-            <span>{isCompiling ? "Compiling access path…" : "Compile access path"}</span>
+            <span>
+              {isCompiling
+                ? mode === "fixture"
+                  ? "Preparing judge run…"
+                  : "Compiling access path…"
+                : mode === "fixture"
+                  ? "Start the judge run"
+                  : "Compile access path"}
+            </span>
             <ArrowRight size={18} aria-hidden="true" />
           </button>
         </div>

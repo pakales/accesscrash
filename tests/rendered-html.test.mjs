@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { access, readFile } from "node:fs/promises";
 import test from "node:test";
 
@@ -35,10 +36,11 @@ test("server-renders the AccessCrash decision desk", async () => {
 
   const html = await response.text();
   assert.match(html, /<title>AccessCrash — Human regression testing<\/title>/i);
-  assert.match(html, /Can someone who qualifies elsewhere actually finish\?/i);
+  assert.match(html, /Eligibility is not access\./i);
   assert.match(html, /Public or non-personal process documents only/i);
   assert.match(html, /Code decides the outcome/i);
-  assert.match(html, /Compile access path/i);
+  assert.match(html, /<small>AN<\/small><strong>EV1 LABS BUILD<\/strong>/);
+  assert.match(html, /Start the judge run/i);
   assert.match(html, /aria-label="EV1 Labs project links"/);
   assert.match(html, /href="https:\/\/ev1labs\.com\/"/);
   assert.match(
@@ -52,16 +54,17 @@ test("server-renders the AccessCrash decision desk", async () => {
 });
 
 test("keeps product metadata and public assets production-scoped", async () => {
-  const [page, layout, packageJson, favicon] = await Promise.all([
+  const [page, layout, packageJson, favicon, ev1Mark] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
     readFile(new URL("../package.json", import.meta.url), "utf8"),
     readFile(new URL("../public/favicon.svg", import.meta.url), "utf8"),
+    readFile(new URL("../public/ev1labs-mark.svg", import.meta.url)),
   ]);
 
   assert.match(page, /<AccessCrashApp \/>/);
   assert.match(layout, /AccessCrash — Human regression testing/);
-  assert.match(layout, /themeColor:\s*"#07120f"/);
+  assert.match(layout, /themeColor:\s*"#070909"/);
   assert.match(layout, /icons:\s*\{/);
   assert.match(layout, /accesscrash-social\.jpg/);
   assert.match(packageJson, /"name":\s*"accesscrash"/);
@@ -69,6 +72,10 @@ test("keeps product metadata and public assets production-scoped", async () => {
   assert.match(favicon, /aria-label="AccessCrash"/);
   assert.match(favicon, /#07120f/i);
   assert.match(favicon, /#79f2bf/i);
+  assert.equal(
+    createHash("sha256").update(ev1Mark).digest("hex"),
+    "d1074b27463fb95e6ccfe07e1e7cba65528a08fe6e1af79919427bdd81b41032",
+  );
 
   await access(new URL("public/accesscrash-social.jpg", projectRoot));
 

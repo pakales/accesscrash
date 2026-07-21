@@ -1,4 +1,4 @@
-import { Check, Route } from "lucide-react";
+import { Check } from "lucide-react";
 import type { AccessStage } from "./accesscrash-types";
 
 const stages: Array<{
@@ -22,7 +22,14 @@ export function AccessCrashHeader({ stage }: { stage: AccessStage }) {
       <div className="ac-header-inner">
         <a className="ac-brand" href="#top" aria-label="AccessCrash home">
           <span className="ac-brand-mark" aria-hidden="true">
-            <Route size={18} strokeWidth={2.15} />
+            {/* Exact local SVG; image optimization adds no value for this 380-byte mark. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              alt=""
+              height={40}
+              src="/favicon.svg"
+              width={40}
+            />
           </span>
           <span>
             <strong>AccessCrash</strong>
@@ -35,9 +42,36 @@ export function AccessCrashHeader({ stage }: { stage: AccessStage }) {
           Code decides the outcome
         </div>
 
-        <span className="ac-stage-counter" aria-label={`Step ${stageIndex(stage) + 1} of 4`}>
-          {String(stageIndex(stage) + 1).padStart(2, "0")} / 04
-        </span>
+        <div className="ac-header-trailing">
+          <a
+            aria-label="Explore the EV1 Labs Build Week 2026 collection"
+            className="ac-publisher-link"
+            href="https://ev1labs.com/labs/build-week-2026/"
+            rel="noreferrer"
+            target="_blank"
+          >
+            {/* Exact official EV1 asset, kept byte-identical and local. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              alt=""
+              aria-hidden="true"
+              className="ac-publisher-mark"
+              height={24}
+              src="/ev1labs-mark.svg"
+              width={24}
+            />
+            <span className="ac-publisher-copy">
+              <small>AN</small>
+              <strong>EV1 LABS BUILD</strong>
+            </span>
+          </a>
+          <span
+            className="ac-stage-counter"
+            aria-label={`Step ${stageIndex(stage) + 1} of 4`}
+          >
+            {String(stageIndex(stage) + 1).padStart(2, "0")} / 04
+          </span>
+        </div>
       </div>
     </header>
   );
