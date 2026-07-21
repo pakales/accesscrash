@@ -2,6 +2,10 @@
 
 **Eligibility is not access.**
 
+[Open the signed-out live demo](https://accesscrash.e-vigelis.chatgpt.site) ·
+[Watch the 2:40 Build Week demo](https://youtu.be/aNcP-um0aZk) ·
+[View the submitted Devpost project](https://devpost.com/software/accesscrash)
+
 AccessCrash is an Education-track process crash tester. It turns bounded
 application instructions into a source-grounded graph, asks a human to confirm
 that graph, and then deterministically checks whether a person with a specific

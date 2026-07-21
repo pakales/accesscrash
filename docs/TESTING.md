@@ -280,15 +280,15 @@ Complete this table only on the final source state.
 
 | Claim | Evidence required before claiming | Status in this document |
 | --- | --- | --- |
-| Lint, types, build, and tests pass | Current-source `npm run verify` output | PASS on 2026-07-21: lint, typecheck, production build, 52 unit/API/UI-contract tests, and 2 rendered-output tests |
-| Production dependency audit passes | Current-source `npm run audit:prod` output | PASS on 2026-07-21: 0 production vulnerabilities; 495 registry signatures and 118 attestations verified separately |
-| Live GPT-5.6 and exact Pineglass normalization work | Current-source canonical live request, grounding evidence, canonical topology, visible warning, no verdict | PARTIAL end-to-end on 2026-07-21: a current-source direct server-boundary request passed live in 50.4 s with 7 unconfirmed steps, the normalization warning, and no verdict; automated API/UI contracts pass. A new live-browser presentation pass was blocked by the shared resource governor, so that final browser layer is not claimed |
+| Lint, types, build, and tests pass | Current-source `npm run verify` output | PASS on 2026-07-21: lint, typecheck, production build, 53 unit/API/UI-contract tests, and 2 rendered-output tests; 55 total, 0 failures |
+| Production dependency audit passes | Current-source `npm run audit:prod` output | PASS on 2026-07-21: 0 production vulnerabilities |
+| Live GPT-5.6 and exact Pineglass normalization work | Current-source canonical live request, grounding evidence, canonical topology, visible warning, no verdict | PARTIAL end-to-end on 2026-07-21: a current-source direct server-boundary request passed live with 7 unconfirmed steps, the normalization warning, and no verdict; automated API/UI contracts pass. A new live-browser presentation pass was blocked by the shared resource governor, so that final browser layer is not claimed |
 | General live sources are not normalized | Current-source non-Pineglass live request and topology inspection | PASS in current automated compiler tests; external live-model end-to-end was not rerun |
 | Fallback is transparent | Production-disabled, missing-key, refusal, and invalid-output API checks plus browser inspection | PASS on 2026-07-21 in automated tests and the complete local browser flow |
 | Engine and report integrity hold | Closure/outcome-kind, global-unconfirmed, fresh-report, forged-assessment, and comparison tests | PASS on 2026-07-21, including optimal non-overlapping scheduling, maximum-cycle, 65-item, permutation, analysis-budget, complete-evidence fingerprint, and 64-profile boundary cases |
 | No application persistence | Source review, D1/R2 configuration, and browser storage inspection | PARTIAL: source/config review still shows no evidence or model-output persistence; browser storage inspection was not repeated in this pass |
 | Desktop and mobile are usable | Current-build screenshots and interaction pass | PASS on 2026-07-21: complete desktop flow, 390×844 responsive pass, zero console warnings/errors, no horizontal overflow, and 44 px segmented controls |
-| Public judge flow works signed out | Deployed acceptance pass | Pending deployment |
+| Public judge flow works signed out | Deployed acceptance pass | PASS on 2026-07-21 at `https://accesscrash.e-vigelis.chatgpt.site`: complete desktop and 390×844 mobile fallback flow, 0 console warnings/errors, no horizontal overflow, public compile endpoint returns 7 unconfirmed steps and no model verdict |
 
 ## Residual-risk reporting
 

@@ -1,8 +1,8 @@
 # AccessCrash — Devpost Submission Copy
 
-> Draft only. Replace every bracketed field after the exact public build,
-> repository, video, and primary Codex session have been verified. Do not paste
-> this into Devpost before completing the final claim audit.
+> Submitted source of truth. The public build, repository, video, Education
+> category, primary Codex session, and separate AccessCrash Devpost entry are
+> verified.
 
 ## Core fields
 
@@ -280,13 +280,15 @@ product of its kind.
 Use only the bundled synthetic case; no account, private document, or real
 student data is required.
 
-1. Open `[verified live URL]`.
+1. Open [the signed-out live app](https://accesscrash.e-vigelis.chatgpt.site).
 2. Load **Pineglass Institute · Access Grant** and confirm the fictional, synthetic,
    no-persistence labels.
 3. Select **Compile access path**.
-4. Confirm the mode is truthfully `live` or `fallback`; never confuse the two.
-   On an exact bundled Pineglass live run, inspect the visible warning that the
-   grounded draft was normalized to the canonical fixture topology.
+4. Confirm the public judge build is truthfully labeled `fallback`. The
+   separately controlled live GPT-5.6 run is shown in the demo video and must
+   not be confused with the public fallback response. On an exact bundled
+   Pineglass live run, the product visibly warns that the grounded draft was
+   normalized to the canonical fixture topology.
 5. Inspect source citations. Confirm the displayed draft with **Confirm N
    source-linked rules**, or reject it and recompile; V1 does not edit rules.
 6. Compare the fixed standard profile with the capability-constrained twin.
@@ -305,10 +307,10 @@ must never be described as evidence that GPT processed the selected source.
 
 ## Links
 
-- **Live app:** `[add after signed-out verification]`
-- **Code repository:** `[add after access and license verification]`
-- **Public YouTube demo:** `[add after upload and signed-out playback audit]`
-- **Devpost entry:** `[add after draft creation]`
+- **Live app:** [accesscrash.e-vigelis.chatgpt.site](https://accesscrash.e-vigelis.chatgpt.site)
+- **Code repository:** [github.com/pakales/accesscrash](https://github.com/pakales/accesscrash)
+- **Public YouTube demo:** [youtu.be/aNcP-um0aZk](https://youtu.be/aNcP-um0aZk)
+- **Devpost entry:** [devpost.com/software/accesscrash](https://devpost.com/software/accesscrash)
 - **Primary Codex Session ID:** `019f7221-2421-78e3-b12e-f6082da1ed87`
 - **License:** [MIT](../LICENSE)
 
@@ -363,61 +365,65 @@ The [official rules](https://openai.devpost.com/rules) and
 [FAQ](https://openai.devpost.com/details/faqs) control; this checklist is only a
 working aid.
 
-- [ ] Working project uses both Codex and GPT-5.6 meaningfully.
-- [ ] Education category selected.
-- [ ] English text description explains features and operation.
-- [ ] Demo video is under three minutes, public on YouTube, has audio, and
+- [x] Working project uses both Codex and GPT-5.6 meaningfully.
+- [x] Education category selected in the separate AccessCrash Devpost entry.
+- [x] English text description explains features and operation.
+- [x] Demo video is under three minutes, public on YouTube, has audio, and
       explains the product, Codex use, and GPT-5.6 use.
-- [ ] Video contains no unlicensed third-party trademarks, music, or material.
-- [ ] Repository URL is supplied; repo is public with relevant licensing or is
+- [x] Video contains no unlicensed music or third-party footage; it uses the
+      AccessCrash product, original graphics, and disclosed OpenAI TTS narration.
+- [x] Repository URL is supplied; repo is public with relevant licensing or is
       privately shared with the required judging addresses.
-- [ ] README includes setup, sample data, testing, key decisions, and concrete
+- [x] README includes setup, sample data, testing, key decisions, and concrete
       Codex/GPT-5.6 collaboration.
-- [ ] Exact `/feedback` Session ID comes from the primary core-build task.
-- [ ] Working project is available free of charge and without restrictions for
+- [x] Exact `/feedback` Session ID comes from the primary core-build task.
+- [x] Working project is available free of charge and without restrictions for
       the judging period.
-- [ ] Project functions as depicted in the submitted video and description.
-- [ ] AccessCrash is unique and substantially different from the entrant's
+- [x] Project functions as depicted in the submitted video and description.
+- [x] AccessCrash is unique and substantially different from the entrant's
       other submissions.
 
 ## Final claim audit
 
 Before submission, verify each item against the exact public source and build:
 
-- [ ] Product and fixture names are exactly **AccessCrash** and
-      **Pineglass Institute · Access Grant** everywhere.
-- [ ] Runtime code uses the exact required GPT-5.6 identifier.
-- [ ] Live compile is genuinely live and visibly distinct from fallback.
-- [ ] The production live-model flag remains false unless server-side identity
+- [x] Formal product and UI fixture labels use exactly **AccessCrash** and
+      **Pineglass Institute · Access Grant**.
+- [x] Runtime code uses the exact required GPT-5.6 identifier.
+- [x] The controlled live compile is genuinely live and visibly distinct from
+      the public fallback-only judge build.
+- [x] The production live-model flag remains false unless server-side identity
       and persistent quota/rate controls have passed deployed verification.
-- [ ] Model output remains unconfirmed and contains no verdict.
-- [ ] Declared outcome has `kind: "outcome"`; every declared step belongs to its
+- [x] Model output remains unconfirmed and contains no verdict.
+- [x] Declared outcome has `kind: "outcome"`; every declared step belongs to its
       dependency closure; any unconfirmed declared step yields `UNKNOWN`.
-- [ ] Confirmation is invalidated after relevant changes.
-- [ ] Confirmation accepts the displayed draft or rejects/recompiles it; public
+- [x] Confirmation is invalidated after relevant changes.
+- [x] Confirmation accepts the displayed draft or rejects/recompiles it; public
       copy does not imply a graph editor or automatic correction.
-- [ ] Report generation rejects stale or forged assessment content after fresh
+- [x] Report generation rejects stale or forged assessment content after fresh
       evaluation of the exact process/profile.
-- [ ] Version comparison requires the same outcome and capability-ID vocabulary and
+- [x] Version comparison requires the same outcome and capability-ID vocabulary and
       exposes blocker and unknown-reason IDs before and after.
-- [ ] A single-person `REACHABLE` path has a proven non-overlapping serialized
+- [x] A single-person `REACHABLE` path has a proven non-overlapping serialized
       schedule; ambiguous bounded overlap returns `UNKNOWN`.
-- [ ] `allOf` permutations and cycle discovery order produce canonical evidence.
-- [ ] Deterministic exact-analysis work-budget exhaustion fails fast to `analysis-limit`
+- [x] `allOf` permutations and cycle discovery order produce canonical evidence.
+- [x] Deterministic exact-analysis work-budget exhaustion fails fast to `analysis-limit`
       `UNKNOWN`, never partial confident output.
-- [ ] Exact bundled Pineglass live mode visibly discloses deterministic fixture
+- [x] Exact bundled Pineglass live mode visibly discloses deterministic fixture
       normalization after grounded GPT validation; general sources are not
       normalized.
-- [ ] Standard, constrained, repaired, regressed, and unknown cases match the
+- [x] Standard, constrained, repaired, regressed, and unknown cases match the
       deterministic engine contract.
-- [ ] PDF/TXT/Markdown limits, provider-side PDF extraction, exact model,
+- [x] PDF/TXT/Markdown limits, provider-side PDF extraction, exact model,
       timeout, retry, and `store: false` claims match code and deployed behavior.
-- [ ] No application persistence or real student data exists.
-- [ ] Public app works signed out from a clean browser.
-- [ ] `ACCESSCRASH_SITE_URL` is the exact verified HTTPS origin and the social
+- [x] The app implements no evidence/model-output persistence, and bundled demo
+      fixtures contain no real student data.
+- [x] Public app works signed out from a clean browser.
+- [x] `ACCESSCRASH_SITE_URL` is the exact verified HTTPS origin and the social
       preview image resolves from that origin.
-- [ ] Desktop and mobile flows have no blocking layout or console errors.
-- [ ] Repository, license, setup, sample data, live app, and video links resolve.
-- [ ] Video framing leaves safe margins and no text begins against the edge.
-- [ ] No public copy claims first, only, eligibility, approval, fairness,
-      legality, accessibility certification, compliance, or measured impact.
+- [x] Desktop and mobile flows have no blocking layout or console errors.
+- [x] Repository, license, setup, sample data, live app, and video links resolve.
+- [x] Video framing leaves safe margins and no text begins against the edge.
+- [x] No public copy claims first or only, says AccessCrash decides eligibility
+      or approval, or certifies fairness, legality, accessibility conformance,
+      compliance, or measured impact.
