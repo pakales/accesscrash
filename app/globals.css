@@ -143,6 +143,7 @@ button {
 .ac-brand {
   display: inline-flex;
   width: fit-content;
+  min-height: 44px;
   align-items: center;
   gap: 11px;
   color: inherit;

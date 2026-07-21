@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -7,6 +8,14 @@ import { TwinSetupStage } from "../app/components/TwinSetupStage";
 import type { RuleView } from "../app/components/accesscrash-types";
 
 const noop = () => {};
+
+test("the mobile home link keeps a 44px touch target", () => {
+  const css = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+  const brandRule = css.match(/\.ac-brand\s*\{([^}]*)\}/);
+
+  assert.ok(brandRule, "Expected the AccessCrash brand rule to exist.");
+  assert.match(brandRule[1], /min-height:\s*44px/);
+});
 
 test("confirmation badges describe topology instead of policy requirement", () => {
   const rules: RuleView[] = [

@@ -8,7 +8,7 @@
 - **Build:** the exact public build submitted to judges
 - **Data:** only fictional Pineglass Institute · Access Grant content
 - **Core story:** instructions → live GPT draft or transparent fallback → human
-  confirmation → deterministic access crash → synthetic minimum repair set →
+  confirmation → deterministic access crash → bounded three-alternative repair set →
   reachable regression proof
 
 Keep all primary text inside a safe area with at least 6% horizontal margin.
@@ -56,7 +56,7 @@ Pineglass run, also show the canonical-normalization warning.
 > normalized. The draft stays source cited and unconfirmed, and the model has no
 > reachability or eligibility verdict.
 
-If the recorded run is fallback, replace “GPT-5.6 converts” with:
+If the recorded run is fallback, replace the live-path narration above with:
 
 > The live model is unavailable, so AccessCrash clearly switches to its bundled
 > synthetic fallback. It does not pretend this graph came from the pasted

@@ -17,7 +17,7 @@ flowchart LR
     H --> E["Deterministic graph engine"]
     P["Synthetic capability profile"] --> E
     E --> R["Path, blockers, cycles, verdict"]
-    X["Three-alternative minimum repair set"] --> E
+    X["Bounded three-alternative repair set"] --> E
     E --> G["Before / after regression"]
 ```
 
@@ -51,7 +51,7 @@ sequenceDiagram
     User->>UI: Inspect citations; confirm as displayed or reject/recompile
     UI->>Engine: Confirmed graph + bounded capability twin
     Engine-->>UI: Deterministic BEFORE report
-    User->>UI: Apply synthetic minimum repair set
+    User->>UI: Apply bounded synthetic repair set
     UI->>Engine: Changed graph + same profiles
     Engine-->>UI: Deterministic AFTER report and regression
 ```
