@@ -26,6 +26,9 @@ export const metadata: Metadata = {
   },
   description: productDescription,
   applicationName: "AccessCrash",
+  authors: [{ name: "EV1 Labs", url: "https://ev1labs.com/" }],
+  creator: "EV1 Labs",
+  publisher: "EV1 Labs",
   keywords: [
     "student services",
     "human regression testing",

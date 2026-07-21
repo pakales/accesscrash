@@ -39,6 +39,12 @@ test("server-renders the AccessCrash decision desk", async () => {
   assert.match(html, /Public or non-personal process documents only/i);
   assert.match(html, /Code decides the outcome/i);
   assert.match(html, /Compile access path/i);
+  assert.match(html, /aria-label="EV1 Labs project links"/);
+  assert.match(html, /href="https:\/\/ev1labs\.com\/"/);
+  assert.match(
+    html,
+    /href="https:\/\/ev1labs\.com\/labs\/build-week-2026\/"/,
+  );
   assert.match(html, /href=["']\/favicon\.svg["']/i);
   assert.doesNotMatch(html, /Your site is taking shape|Building your site/i);
   assert.doesNotMatch(html, /react-loading-skeleton|codex-preview/i);

@@ -103,7 +103,22 @@ export function AppFooter() {
   return (
     <footer className="ac-footer">
       <p>AccessCrash evaluates executable paths. It does not evaluate eligibility, legality, or people.</p>
-      <span>Not saved by AccessCrash.</span>
+      <div className="ac-footer-meta">
+        <span>Not saved by AccessCrash.</span>
+        <nav className="ac-project-links" aria-label="EV1 Labs project links">
+          <a href="https://ev1labs.com/" target="_blank" rel="noreferrer">
+            EV1 Labs
+          </a>
+          <span aria-hidden="true">·</span>
+          <a
+            href="https://ev1labs.com/labs/build-week-2026/"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Build Week 2026
+          </a>
+        </nav>
+      </div>
     </footer>
   );
 }
